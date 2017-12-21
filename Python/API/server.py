@@ -4,6 +4,7 @@ import Crawler.crawler as cr
 import pickle
 
 
+debug=False
 
 
 try:
@@ -19,7 +20,6 @@ except FileNotFoundError:
 		pickle.dump(routes, outfile)
 
 
-debug=False
 
 
 
@@ -27,18 +27,66 @@ app = Flask(__name__)
 
 
 
-@app.route('/',methods=['GET'])
+@app.route('/route/',methods=['GET'])
 def get_routes():
 
 
 
 	resp = {}
 
-	resp['data'] = routes[0].serialize()
+	resp['data'] = []
 
-	print(routes[0].serialize())
+
+	for c in routes:
+
+		resp['data'].append(c.serialize())
+
 
 	return jsonify(resp), 200
+
+
+
+
+
+@app.route('/route/information/',methods=['GET'])
+def get_routes_information():
+
+
+
+
+	resp = {}
+
+	resp['data'] = []
+
+
+	for c in routes:
+
+		resp['data'].append(c.serialize_all())
+
+	return jsonify(resp), 200
+
+
+
+
+
+@app.route('/route/<int:ids>',methods=['GET'])
+def get_route(ids):
+
+
+
+	resp = {}
+
+	for c in routes:
+		if(c.idr==ids):
+			resp['data'] = c.serialize()
+			return jsonify(resp), 200
+
+
+
+
+
+
+	return jsonify(resp), 400
 
 
 

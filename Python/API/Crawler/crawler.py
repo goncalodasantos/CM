@@ -28,14 +28,19 @@ class Hour(object):
 class Route(object):
 
 
-	def __init__(self, route_official, route_name):
+	def __init__(self, idr, route_official, route_name):
 		self.route_name=route_name.split("-")[0]
 		self.route_official=route_official
+		self.idr=idr
 		self.points=[]
 		self.hours=[]
+		if(self.route_name==" "):
+			self.route_name="Desconhecido"
+		else:
+			self.route_name=self.route_name[0:len(self.route_name)-1]
 
 	def __str__(self):
-		return "Route_Name: "+ self.route_name+"    Route Official: "+self.route_official+"    Points: "+ self.printPoints()+ "    Hours: "+self.printHours()
+		return "ID: "+ str(self.idr)+"    Route_Name: "+ self.route_name+"    Route Official: "+self.route_official+"    Points: "+ self.printPoints()+ "    Hours: "+self.printHours()
 
 	def printHours(self):
 		result=""
@@ -52,13 +57,16 @@ class Route(object):
 		return result
 
 	def serialize(self):
-		return {'route_name': self.route_name, 'route_official': self.route_official,'points': [ob for ob in self.points],'hours': [obx.serialize() for obx in self.hours],}
+		return {'id': self.idr,'route_name': self.route_name, 'points': [ob for ob in self.points],}
 
+	def serialize_all(self):
+		return {'id': self.idr,'route_name': self.route_name, 'route_official': self.route_official,'points': [ob for ob in self.points],'hours': [obx.serialize() for obx in self.hours],}
 
 
 
 def getRoutes(debug):
 
+	id_counter=0
 
 	r  = requests.get("http://smtuc.pt/top_horarios.php?titulo=Horarios&tipo_linha=0")
 
@@ -91,8 +99,9 @@ def getRoutes(debug):
 
 
 
-		route=Route(i['value'], i.text)
+		route=Route(id_counter,i['value'], i.text)
 
+		id_counter=id_counter+1
 		route.points.append(stuff[0].strip('\n'))
 		route.points.append(stuff[1].strip('\n'))
 		
@@ -154,7 +163,9 @@ def getRoutes(debug):
 
 
 
-			route=Route(i['value'], i.text)
+			route=Route(id_counter,i['value'], i.text)
+
+			id_counter=id_counter+1
 
 			route.points.append(stuff[1].strip('\n'))
 			route.points.append(stuff[0].strip('\n'))
@@ -202,8 +213,9 @@ def getRoutes(debug):
 
 
 
-			route=Route(i['value'], i.text)
+			route=Route(id_counter,i['value'], i.text)
 
+			id_counter=id_counter+1
 			route.points.append(stuff[1].strip('\n'))
 			route.points.append(stuff[0].strip('\n'))
 
@@ -228,3 +240,7 @@ def getRoutes(debug):
 				print("\n")
 
 	return routes
+
+
+if __name__=='__main__':
+	getRoutes(True)
