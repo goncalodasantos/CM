@@ -27,7 +27,7 @@ app = Flask(__name__)
 
 
 
-@app.route('/route/',methods=['GET'])
+@app.route('/routes',methods=['GET'])
 def get_routes():
 
 
@@ -48,23 +48,21 @@ def get_routes():
 
 
 
-@app.route('/route/information/',methods=['GET'])
-def get_routes_information():
-
+@app.route('/route/information/<int:ids>',methods=['GET'])
+def get_routes_information(ids):
 
 
 
 	resp = {}
 
-	resp['data'] = []
-
-
 	for c in routes:
+		if(c.idr==ids):
+			resp['data'] = c.serialize_all()
+			return jsonify(resp), 200
 
-		resp['data'].append(c.serialize_all())
 
-	return jsonify(resp), 200
 
+	return jsonify(resp), 400
 
 
 

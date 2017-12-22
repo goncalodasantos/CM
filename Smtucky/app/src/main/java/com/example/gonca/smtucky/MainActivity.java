@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         Intent intent =new Intent(this,ConnectAPI.class);
+        intent.putExtra("decision","getRoutes");
         intent.putExtra("routenumber","6");
 
         startService(intent);//not startActivity!
