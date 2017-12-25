@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Smtucky</string>
+    <string name="delete_view">Delete</string>
 </resources>
