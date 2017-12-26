@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
@@ -70,6 +71,15 @@ public class MainActivity extends AppCompatActivity {
                 }
                 mAdapter = new ItemViewAdapter(new ArrayList<>((listContents)));
                 mRecyclerView.setAdapter(mAdapter);
+                mRecyclerView.addOnItemTouchListener(
+                        new RecyclerItemClickListener(context, new RecyclerItemClickListener.OnItemClickListener() {
+                            @Override public void onItemClick(View view, int position) {
+                                //
+                                //
+                                
+                            }
+                        })
+                );
 
 
 
@@ -81,6 +91,13 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
+    public interface ItemClickListener {
+        void onClick(View view, int position);
+    }
+
+
+
 
 
 
