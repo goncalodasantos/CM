@@ -18,6 +18,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.facebook.login.Login;
@@ -80,9 +83,9 @@ public class MainActivity extends AppCompatActivity {
                     routes.getRoutes().add(rt);
                 }
 
-
                 Log.v("stuff","oi3");
-                updateUI();
+                updateUI(context);
+
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -91,7 +94,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    protected void updateUI() {
+    public interface ItemClickListener {
+        void onClick(View view, int position);
+    }
+
+    protected void updateUI(Context context) {
         ArrayList<String> listOfRoutes = new ArrayList<String>();
 
         for (int i = 0; i < routes.getRoutes().size(); i++) {
@@ -99,10 +106,10 @@ public class MainActivity extends AppCompatActivity {
 
             if (!route.equals("Desconhecido")) {
 
-                listOfRoutes.add(route + " - "+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
+                listOfRoutes.add(route+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
             }
             else{
-                listOfRoutes.add(" - "+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
+                listOfRoutes.add(routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
             }
 
 
@@ -110,11 +117,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-
-
-
         mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
         mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addOnItemTouchListener(
+                new RecyclerItemClickListener(context, new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override public void onItemClick(View view, int position) {
+                        Intent i = new Intent(MainActivity.this, RouteActivity.class);
+                        startActivity(i);
+
+
+                    }
+                })
+        );
 
     }
 
@@ -163,7 +177,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Adiciona o adapter que irá anexar os objetos à lista.
         // Está sendo criado com lista vazia, pois será preenchida posteriormente.
-        mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
         mRecyclerView.setAdapter(mAdapter);
 
         // Configurando um dividr entre linhas, para uma melhor visualização.

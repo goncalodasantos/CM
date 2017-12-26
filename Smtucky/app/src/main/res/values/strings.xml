@@ -6,4 +6,5 @@
 
     <string name="facebook_app_id">1679392852080937</string>
     <string name="fb_login_protocol_scheme">fb1679392852080937</string>
+    <string name="title_activity_route">RouteActivity</string>
 </resources>
