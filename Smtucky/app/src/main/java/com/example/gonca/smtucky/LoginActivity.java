@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -35,9 +37,20 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.welcome_login);
 
+        Button yourButton = (Button) findViewById(R.id.button_login);
+
+        yourButton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            }
+        });
+
+
         if(isLoggedIn()) {
+            Log.v("stuff:","ola");
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
         } else {
+            Log.v("stuff:","ola2");
             callbackManager = CallbackManager.Factory.create();
 
             LoginManager.getInstance().registerCallback(callbackManager,
@@ -76,6 +89,8 @@ public class LoginActivity extends Activity {
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         return accessToken != null;
     }
+
+
 
 
 }

@@ -187,7 +187,7 @@ public class ConnectAPI extends Service {
         }
 
         public void run() {
-            JSONObject response;
+            JSONObject response = null;
             HttpURLConnection urlConnection = null;
             try {
                 // create connection
@@ -209,7 +209,6 @@ public class ConnectAPI extends Service {
                 InputStream in = new BufferedInputStream(
                         urlConnection.getInputStream());
                 response = new JSONObject(getResponseText(in));
-                Log.d("stuff", response.toString());
             } catch (MalformedURLException e) {
                 Log.d("stuff", "URL Exception");
             } catch (SocketTimeoutException e) {
@@ -225,7 +224,7 @@ public class ConnectAPI extends Service {
             }
             Intent done = new Intent();
             done.setAction("action");
-            done.putExtra("routenumber", "yolo");
+            done.putExtra("response", response.toString());
             sendBroadcast(done);
         }
     }

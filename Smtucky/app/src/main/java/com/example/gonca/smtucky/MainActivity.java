@@ -1,6 +1,8 @@
 package com.example.gonca.smtucky;
 
 import android.app.Activity;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -19,22 +21,74 @@ import android.view.MenuItem;
 import com.facebook.login.Login;
 import com.facebook.login.LoginManager;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    Routes routes=null;
 
     private class APIReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context,Intent intent){
         //>handle the received broadcast message
 
-            String value1 = intent.getStringExtra("routenumber");
+            String value1 = intent.getStringExtra("response");
             Log.d("stuff", value1);
+            try {
+                JSONObject stuff=new JSONObject(value1);
+                JSONArray dataarray=new JSONArray(stuff.get("data").toString());
+
+                Log.v("stuff","debug");
+
+                ArrayList<Route> listOfRoutes=new ArrayList<>();
+
+                for (int i = 0; i < dataarray.length(); i++) {
+
+
+                    Route rt=new Route(dataarray.getJSONObject(i).get("route_official").toString(), dataarray.getJSONObject(i).get("route_name").toString(), Integer.parseInt(dataarray.getJSONObject(i).get("id").toString()));
+
+                    JSONArray dataarray2= (JSONArray) dataarray.getJSONObject(i).get("hours");
+                    ArrayList<String> times=new ArrayList<>();
+
+                    for (int j = 0; j < dataarray2.length(); j++) {
+                        times.add(dataarray2.getJSONObject(j).get("time").toString());
+                    }
+
+                    rt.setTimes(times);
+
+                    rt.setFrom(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(0));
+                    rt.setTo(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(1));
+
+
+                    routes.getRoutes().add(rt);
+                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -46,6 +100,10 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter filter =new IntentFilter();
         filter.addAction("action");
         registerReceiver(new APIReceiver(),filter);
+
+
+
+        routes = ViewModelProviders.of(this).get(Routes.class);
 
 
         Intent intent =new Intent(this,ConnectAPI.class);
