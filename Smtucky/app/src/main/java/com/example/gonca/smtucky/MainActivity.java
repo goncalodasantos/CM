@@ -15,6 +15,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.facebook.login.Login;
@@ -68,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 mAdapter = new ItemViewAdapter(new ArrayList<>((listContents)));
                 mRecyclerView.setAdapter(mAdapter);
+
+
 
             } catch (JSONException e) {
                 e.printStackTrace();
