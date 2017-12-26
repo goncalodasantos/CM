@@ -40,14 +40,14 @@
         app:layout_constraintVertical_bias="0.029999971" />
 
     <Button
-        android:id="@+id/button_send"
+        android:id="@+id/button_login"
         android:layout_width="109dp"
         android:layout_height="47dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:onClick="sendMessage"
+        android:onClick="goToMain"
         android:text="Login"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/login_button"

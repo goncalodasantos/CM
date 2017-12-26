@@ -123,7 +123,7 @@ public class ConnectAPI extends Service {
             }
             Intent done = new Intent();
             done.setAction("action");
-            done.putExtra("routenumber", response.toString());
+            done.putExtra("response", response.toString());
             sendBroadcast(done);
         }
     }
@@ -174,7 +174,7 @@ public class ConnectAPI extends Service {
             }
             Intent done = new Intent();
             done.setAction("action");
-            done.putExtra("routenumber", response.toString());
+            done.putExtra("response", response.toString());
             sendBroadcast(done);
         }
     }
@@ -210,7 +210,6 @@ public class ConnectAPI extends Service {
                         urlConnection.getInputStream());
                 response = new JSONObject(getResponseText(in));
 
-                Log.d("stuff", response.toString());
             } catch (MalformedURLException e) {
                 Log.d("stuff", "URL Exception");
             } catch (SocketTimeoutException e) {
@@ -226,7 +225,8 @@ public class ConnectAPI extends Service {
             }
             Intent done = new Intent();
             done.setAction("action");
-            done.putExtra("routenumber", response.toString());
+
+            done.putExtra("response", response.toString());
 
             sendBroadcast(done);
         }

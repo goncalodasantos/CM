@@ -39,7 +39,7 @@ def get_routes():
 
 	for c in routes:
 
-		resp['data'].append(c.serialize())
+		resp['data'].append(c.serialize_all())
 
 
 	return jsonify(resp), 200
