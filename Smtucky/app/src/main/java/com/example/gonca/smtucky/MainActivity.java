@@ -11,7 +11,6 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
@@ -44,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     Routes routes = null;
-    TabLayout tabLayout;
+    private JSONArray j;
 
 
     private class APIReceiver extends BroadcastReceiver {
@@ -142,11 +141,7 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter();
         filter.addAction("action");
         registerReceiver(new APIReceiver(), filter);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        //getSupportActionBar().setTitle("SMTUCky");
 
         routes = ViewModelProviders.of(this).get(Routes.class);
 
@@ -155,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("decision", "getRoutes");
         intent.putExtra("routenumber", "6");
 
-        startService(intent);
+        startService(intent);//not startActivity!
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -163,34 +158,29 @@ public class MainActivity extends AppCompatActivity {
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
-        setupRecycler();
-        // Find the view pager that will allow the user to swipe between fragments
+        // Get the ViewPager and set it's PagerAdapter so that it can display items
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-
-        // Create an adapter that knows which fragment should be shown on each page
-        TabsAdapter adapter = new TabsAdapter(getSupportFragmentManager());
-
-        // Set the adapter onto the view pager
-        viewPager.setAdapter(adapter);
+        viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
+                MainActivity.this));
 
         // Give the TabLayout the ViewPager
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
 
-    }
+        setupRecycler();
 
-
-    private void setupTablayout(){
-        tabLayout = (TabLayout) findViewById(R.id.tabLayout);
-        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
     }
 
     private void setupRecycler() {
         Resources res = getResources();
+        String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
+        //aqui
         //String[] mockPlanetsData = a;
         //String[] mockPlanetsData = res.getStringArray(mock_data_for_recycler_view);
 
         // Configurando o gerenciador de layout para ser uma lista.
+        //mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView = findViewById(R.id.my_recycler_view);
         mRecyclerView.setLayoutManager(layoutManager);
@@ -227,11 +217,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             default:
-                int id = item.getItemId();
-
-                if (id == R.id.action_settings) {
-                    return true;
-                }
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
