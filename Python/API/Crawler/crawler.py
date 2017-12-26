@@ -30,7 +30,7 @@ class Route(object):
 
 	def __init__(self, idr, route_official, route_name):
 		self.route_name=route_name.split("-")[0]
-		self.route_official=route_official
+		self.route_official=route_official	
 		self.idr=idr
 		self.points=[]
 		self.hours=[]
@@ -91,6 +91,10 @@ def getRoutes(debug):
 		soup = BeautifulSoup(data, 'html.parser')
 		
 
+
+
+
+
 		stuff=[]
 		for uls in soup.find_all('td',width="878") :
 			stuff.append(uls.text.strip('\n'))
@@ -98,13 +102,46 @@ def getRoutes(debug):
 
 
 
-
 		route=Route(id_counter,i['value'], i.text)
 
 		id_counter=id_counter+1
-		route.points.append(stuff[0].strip('\n'))
-		route.points.append(stuff[1].strip('\n'))
+		route.points.append(stuff[0].strip('\n').replace(" (*)", ""))
+		route.points.append(stuff[1].strip('\n').replace(" (*)", ""))
+
+
+		froms=stuff[0].strip('\n').replace("  (*)", "")
+		tos=stuff[1].strip('\n').replace("  (*)", "")
+
+		temp=[]
+		list1=[]
+		list2=[]
 		
+		for ulss in soup.find_all('font',face="Arial") : 
+			temp.append(ulss.text.strip('\n'))
+		
+
+
+
+		counting=0
+		for c in temp:
+			if(counting==1 and c != tos):
+				list1.append(c)
+			elif(counting==2 and c == froms): 
+				list2.append(c)
+				break
+			elif(counting==2 and c != tos): 
+				list2.append(c)
+			elif(c == froms):
+				if(counting==0):
+					counting=1
+				else:
+					list2.append(c)
+					break
+			elif(c == tos):
+				list1.append(c)
+				list2.append(c)
+				counting=2
+
 
 
 		cont=0
@@ -154,7 +191,10 @@ def getRoutes(debug):
 
 			route.hours=sorted(route.hours, key=lambda x: (x.hour, x.minute), reverse=False)
 
+			route.points=list1
+
 			routes.append(route)
+
 
 			if(debug):
 				print(routes[len(routes)-1])
@@ -171,6 +211,8 @@ def getRoutes(debug):
 			route.points.append(stuff[0].strip('\n'))
 
 
+
+
 			for k in range (int(height/2),int(height)):
 				for f in range(0,len(listfirst)):
 
@@ -182,6 +224,9 @@ def getRoutes(debug):
 						continue
 
 			route.hours=sorted(route.hours, key=lambda x: (x.hour, x.minute), reverse=False)
+
+			route.points=list2
+			
 
 			routes.append(route)
 
@@ -203,7 +248,9 @@ def getRoutes(debug):
 						continue
 
 			route.hours=sorted(route.hours, key=lambda x: (x.hour, x.minute), reverse=False)
-
+			
+			route.points=list1
+			
 			routes.append(route)
 
 			if(debug):
@@ -232,6 +279,8 @@ def getRoutes(debug):
 
 			route.hours=sorted(route.hours, key=lambda x: (x.hour, x.minute), reverse=False)
 
+			route.points=list2
+			
 			routes.append(route)
 
 
