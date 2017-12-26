@@ -37,32 +37,35 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    Routes routes=null;
+    Routes routes = null;
     private JSONArray j;
-    private List<String> listContents;
+
 
     private class APIReceiver extends BroadcastReceiver {
         @Override
-        public void onReceive(Context context,Intent intent){
-        //>handle the received broadcast message
+        public void onReceive(Context context, Intent intent) {
+            //>handle the received broadcast message
 
             String value1 = intent.getStringExtra("response");
             Log.d("stuff", value1);
             try {
-                JSONObject stuff=new JSONObject(value1);
-                JSONArray dataarray=new JSONArray(stuff.get("data").toString());
+                JSONObject stuff = new JSONObject(value1);
+                JSONArray dataarray = new JSONArray(stuff.get("data").toString());
 
-                Log.v("stuff","debug");
+                Log.v("stuff", "debug");
 
-                ArrayList<Route> listOfRoutes=new ArrayList<>();
+
+
+                ArrayList<Route> listOfRoutes = new ArrayList<>();
 
                 for (int i = 0; i < dataarray.length(); i++) {
 
 
-                    Route rt=new Route(dataarray.getJSONObject(i).get("route_official").toString(), dataarray.getJSONObject(i).get("route_name").toString(), Integer.parseInt(dataarray.getJSONObject(i).get("id").toString()));
+                    Route rt = new Route(dataarray.getJSONObject(i).get("route_official").toString(), dataarray.getJSONObject(i).get("route_name").toString(), Integer.parseInt(dataarray.getJSONObject(i).get("id").toString()));
 
-                    JSONArray dataarray2= (JSONArray) dataarray.getJSONObject(i).get("hours");
-                    ArrayList<String> times=new ArrayList<>();
+
+                    JSONArray dataarray2 = (JSONArray) dataarray.getJSONObject(i).get("hours");
+                    ArrayList<String> times = new ArrayList<>();
 
                     for (int j = 0; j < dataarray2.length(); j++) {
                         times.add(dataarray2.getJSONObject(j).get("time").toString());
@@ -78,45 +81,8 @@ public class MainActivity extends AppCompatActivity {
                 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-            String value1 = intent.getStringExtra("routenumber");
-            //Toast.makeText(context, value1, Toast.LENGTH_SHORT).show();
-            Log.d("Rogerio", value1);
-
-            try {
-                //String route;
-                //j =  new JSONArray(value1);
-                JSONObject jsonObj = new JSONObject(value1);
-                JSONArray data = jsonObj.getJSONArray("data");
-                int length = data.length();
-                listContents = new ArrayList<String>(length);
-                String aux= "aux";
-                for (int i = 0; i < data.length(); i++) {
-                    JSONObject c = data.getJSONObject(i);
-                    String route = c.getString("route_name");
-                    if(!aux.equals(route)){
-                        if(!route.equals("Desconhecido")){
-                            Log.d("Bus number: ", route);
-                            listContents.add(route);
-                        }
-                        aux=route;
-                    }
-
-
-                }
-                mAdapter = new ItemViewAdapter(new ArrayList<>((listContents)));
-                mRecyclerView.setAdapter(mAdapter);
-
+                Log.v("stuff","oi3");
+                updateUI();
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -125,23 +91,48 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    protected void updateUI() {
+        ArrayList<String> listOfRoutes = new ArrayList<String>();
+
+        for (int i = 0; i < routes.getRoutes().size(); i++) {
+            String route=routes.getRoutes().get(i).getRoute_name();
+
+            if (!route.equals("Desconhecido")) {
+
+                listOfRoutes.add(route + " - "+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
+            }
+            else{
+                listOfRoutes.add(" - "+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
+            }
+
+
+
+        }
+
+
+
+
+
+        mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
+        mRecyclerView.setAdapter(mAdapter);
+
+    }
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        IntentFilter filter =new IntentFilter();
+        IntentFilter filter = new IntentFilter();
         filter.addAction("action");
-        registerReceiver(new APIReceiver(),filter);
-
+        registerReceiver(new APIReceiver(), filter);
 
 
         routes = ViewModelProviders.of(this).get(Routes.class);
 
 
-        Intent intent =new Intent(this,ConnectAPI.class);
-        intent.putExtra("decision","getRoutes");
-        intent.putExtra("routenumber","6");
+        Intent intent = new Intent(this, ConnectAPI.class);
+        intent.putExtra("decision", "getRoutes");
+        intent.putExtra("routenumber", "6");
 
         startService(intent);//not startActivity!
 
@@ -151,7 +142,11 @@ public class MainActivity extends AppCompatActivity {
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
+
+
+
         setupRecycler();
+
     }
 
     private void setupRecycler() {
@@ -183,8 +178,8 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-        // Adiciona o adapter que irá anexar os objetos à lista.
-        // Está sendo criado com lista vazia, pois será preenchida posteriormente.
+    // Adiciona o adapter que irá anexar os objetos à lista.
+    // Está sendo criado com lista vazia, pois será preenchida posteriormente.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -203,37 +198,12 @@ public class MainActivity extends AppCompatActivity {
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
 
-        // Configurando um dividr entre linhas, para uma melhor visualização.
-        mRecyclerView.addItemDecoration(
-                new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.logout:
-                LoginManager.getInstance().logOut();
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                MainActivity.this.startActivity(intent);
-                return true;
-
-            default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
-                return super.onOptionsItemSelected(item);
 
         }
     }
 }
+
+
+
 
 
