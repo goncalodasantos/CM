@@ -9,6 +9,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 
+
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -51,6 +52,7 @@ public class LoginActivity extends Activity {
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
         } else {
             Log.v("stuff:","ola2");
+
             callbackManager = CallbackManager.Factory.create();
 
             LoginManager.getInstance().registerCallback(callbackManager,
@@ -78,6 +80,7 @@ public class LoginActivity extends Activity {
 
 
 
+
     }
 
     @Override
@@ -89,8 +92,5 @@ public class LoginActivity extends Activity {
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         return accessToken != null;
     }
-
-
-
 
 }

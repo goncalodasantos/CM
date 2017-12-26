@@ -3,6 +3,7 @@ package com.example.gonca.smtucky;
 import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.facebook.login.Login;
 import com.facebook.login.LoginManager;
@@ -36,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     Routes routes=null;
+    private JSONArray j;
+    private List<String> listContents;
 
     private class APIReceiver extends BroadcastReceiver {
         @Override
@@ -85,10 +89,39 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+            String value1 = intent.getStringExtra("routenumber");
+            //Toast.makeText(context, value1, Toast.LENGTH_SHORT).show();
+            Log.d("Rogerio", value1);
+
+            try {
+                //String route;
+                //j =  new JSONArray(value1);
+                JSONObject jsonObj = new JSONObject(value1);
+                JSONArray data = jsonObj.getJSONArray("data");
+                int length = data.length();
+                listContents = new ArrayList<String>(length);
+                String aux= "aux";
+                for (int i = 0; i < data.length(); i++) {
+                    JSONObject c = data.getJSONObject(i);
+                    String route = c.getString("route_name");
+                    if(!aux.equals(route)){
+                        if(!route.equals("Desconhecido")){
+                            Log.d("Bus number: ", route);
+                            listContents.add(route);
+                        }
+                        aux=route;
+                    }
+
+
+                }
+                mAdapter = new ItemViewAdapter(new ArrayList<>((listContents)));
+                mRecyclerView.setAdapter(mAdapter);
+
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
         }
     }
 
@@ -124,6 +157,9 @@ public class MainActivity extends AppCompatActivity {
     private void setupRecycler() {
         Resources res = getResources();
         String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
+        //aqui
+        //String[] mockPlanetsData = a;
+        //String[] mockPlanetsData = res.getStringArray(mock_data_for_recycler_view);
 
         // Configurando o gerenciador de layout para ser uma lista.
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -134,6 +170,38 @@ public class MainActivity extends AppCompatActivity {
         // Está sendo criado com lista vazia, pois será preenchida posteriormente.
         mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
         mRecyclerView.setAdapter(mAdapter);
+
+        // Configurando um dividr entre linhas, para uma melhor visualização.
+        mRecyclerView.addItemDecoration(
+                new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+        // Adiciona o adapter que irá anexar os objetos à lista.
+        // Está sendo criado com lista vazia, pois será preenchida posteriormente.
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                LoginManager.getInstance().logOut();
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                MainActivity.this.startActivity(intent);
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
 
         // Configurando um dividr entre linhas, para uma melhor visualização.
         mRecyclerView.addItemDecoration(
