@@ -1,6 +1,9 @@
 package com.example.gonca.smtucky;
 
 import android.app.Activity;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.ViewModelProviders;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +32,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -36,58 +40,56 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    Routes routes = null;
     private JSONArray j;
-    private List<String> listContents;
+
 
     private class APIReceiver extends BroadcastReceiver {
         @Override
-        public void onReceive(Context context,Intent intent){
-        //>handle the received broadcast message
+        public void onReceive(Context context, Intent intent) {
+            //>handle the received broadcast message
 
-            String value1 = intent.getStringExtra("routenumber");
-            //Toast.makeText(context, value1, Toast.LENGTH_SHORT).show();
-            Log.d("Rogerio", value1);
-
+            String value1 = intent.getStringExtra("response");
+            Log.d("stuff", value1);
             try {
-                //String route;
-                //j =  new JSONArray(value1);
-                JSONObject jsonObj = new JSONObject(value1);
-                JSONArray data = jsonObj.getJSONArray("data");
-                int length = data.length();
-                listContents = new ArrayList<String>(length);
-                String aux= "aux";
-                for (int i = 0; i < data.length(); i++) {
-                    JSONObject c = data.getJSONObject(i);
-                    String route = c.getString("route_name");
-                    if(!aux.equals(route)){
-                        if(!route.equals("Desconhecido")){
-                            Log.d("Bus number: ", route);
-                            listContents.add(route);
-                        }
-                        aux=route;
+                JSONObject stuff = new JSONObject(value1);
+                JSONArray dataarray = new JSONArray(stuff.get("data").toString());
+
+                Log.v("stuff", "debug");
+
+
+
+                ArrayList<Route> listOfRoutes = new ArrayList<>();
+
+                for (int i = 0; i < dataarray.length(); i++) {
+
+
+                    Route rt = new Route(dataarray.getJSONObject(i).get("route_official").toString(), dataarray.getJSONObject(i).get("route_name").toString(), Integer.parseInt(dataarray.getJSONObject(i).get("id").toString()));
+
+
+                    JSONArray dataarray2 = (JSONArray) dataarray.getJSONObject(i).get("hours");
+                    ArrayList<String> times = new ArrayList<>();
+
+                    for (int j = 0; j < dataarray2.length(); j++) {
+                        times.add(dataarray2.getJSONObject(j).get("time").toString());
                     }
 
+                    rt.setTimes(times);
 
+                    rt.setFrom(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(0));
+                    rt.setTo(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(1));
+
+
+                    routes.getRoutes().add(rt);
                 }
-                mAdapter = new ItemViewAdapter(new ArrayList<>((listContents)));
-                mRecyclerView.setAdapter(mAdapter);
-                mRecyclerView.addOnItemTouchListener(
-                        new RecyclerItemClickListener(context, new RecyclerItemClickListener.OnItemClickListener() {
-                            @Override public void onItemClick(View view, int position) {
-                                //
-                                //
-                                
-                            }
-                        })
-                );
 
+                Log.v("stuff","oi3");
+                updateUI(context);
 
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-            //
 
         }
     }
@@ -96,20 +98,55 @@ public class MainActivity extends AppCompatActivity {
         void onClick(View view, int position);
     }
 
+    protected void updateUI(Context context) {
+        ArrayList<String> listOfRoutes = new ArrayList<String>();
+
+        for (int i = 0; i < routes.getRoutes().size(); i++) {
+            String route=routes.getRoutes().get(i).getRoute_name();
+
+            if (!route.equals("Desconhecido")) {
+
+                listOfRoutes.add(route+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
+            }
+            else{
+                listOfRoutes.add(routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
+            }
 
 
 
+        }
+
+
+        mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addOnItemTouchListener(
+                new RecyclerItemClickListener(context, new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override public void onItemClick(View view, int position) {
+                        Intent i = new Intent(MainActivity.this, RouteActivity.class);
+                        startActivity(i);
+
+
+                    }
+                })
+        );
+
+    }
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        IntentFilter filter =new IntentFilter();
+        IntentFilter filter = new IntentFilter();
         filter.addAction("action");
-        registerReceiver(new APIReceiver(),filter);
-        Intent intent =new Intent(this,ConnectAPI.class);
-        intent.putExtra("decision","getRoutes");
-        intent.putExtra("routenumber","6");
+        registerReceiver(new APIReceiver(), filter);
+
+
+        routes = ViewModelProviders.of(this).get(Routes.class);
+
+
+        Intent intent = new Intent(this, ConnectAPI.class);
+        intent.putExtra("decision", "getRoutes");
+        intent.putExtra("routenumber", "6");
 
         startService(intent);//not startActivity!
 
@@ -119,11 +156,16 @@ public class MainActivity extends AppCompatActivity {
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
+
+
+
         setupRecycler();
+
     }
 
     private void setupRecycler() {
         Resources res = getResources();
+        String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
         //aqui
         //String[] mockPlanetsData = a;
         //String[] mockPlanetsData = res.getStringArray(mock_data_for_recycler_view);
@@ -135,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Adiciona o adapter que irá anexar os objetos à lista.
         // Está sendo criado com lista vazia, pois será preenchida posteriormente.
-
+        mRecyclerView.setAdapter(mAdapter);
 
         // Configurando um dividr entre linhas, para uma melhor visualização.
         mRecyclerView.addItemDecoration(
@@ -148,6 +190,9 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu, menu);
         return true;
     }
+
+    // Adiciona o adapter que irá anexar os objetos à lista.
+    // Está sendo criado com lista vazia, pois será preenchida posteriormente.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -166,8 +211,12 @@ public class MainActivity extends AppCompatActivity {
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
 
+
         }
     }
 }
+
+
+
 
 
