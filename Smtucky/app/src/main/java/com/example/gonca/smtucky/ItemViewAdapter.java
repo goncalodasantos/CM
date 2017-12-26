@@ -3,7 +3,9 @@ package com.example.gonca.smtucky;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +34,7 @@ public class ItemViewAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     public void onBindViewHolder(ItemViewHolder holder, int position) {
         Log.d("IVAdapter Pos", words.get(position));
         holder.title.setText(words.get(position));
+
 //        holder.moreButton.setOnClickListener(view -> updateList(position));
 //        holder.deleteButton.setOnClickListener(view -> removerItem(position));
     }
@@ -56,6 +59,7 @@ public class ItemViewAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 //        notifyItemRemoved(position);
 //        notifyItemRangeChanged(position, words.size());
 //    }
+
 
 
 
