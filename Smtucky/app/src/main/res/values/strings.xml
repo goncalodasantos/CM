@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">Smtucky</string>
     <string name="delete_view">Delete</string>
+    <string name="logout">Logout</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="facebook_app_id">1679392852080937</string>
+    <string name="fb_login_protocol_scheme">fb1679392852080937</string>
 </resources>
