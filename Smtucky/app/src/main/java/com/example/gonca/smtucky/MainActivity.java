@@ -9,6 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
@@ -41,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     Routes routes = null;
-    private JSONArray j;
+    TabLayout tabLayout;
 
 
     private class APIReceiver extends BroadcastReceiver {
@@ -139,7 +142,11 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter();
         filter.addAction("action");
         registerReceiver(new APIReceiver(), filter);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setTitle("SMTUCky");
 
         routes = ViewModelProviders.of(this).get(Routes.class);
 
@@ -148,25 +155,46 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("decision", "getRoutes");
         intent.putExtra("routenumber", "6");
 
-        startService(intent);//not startActivity!
+        startService(intent);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
+        setupTablayout();
+        final ViewPager viewpager = (ViewPager) findViewById(R.id.sliding_tabs);
+        TabsAdapter adapter = new TabsAdapter(getSupportFragmentManager());
 
-
-
-
+        viewpager.setAdapter(adapter);
+        tabLayout.setupWithViewPager(viewpager);
         setupRecycler();
+        /*
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewpager.setCurrentItem(tab.getPosition());
 
+            }
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
+        });*/
+
+    }
+
+
+
+    private void setupTablayout(){
+        tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
     }
 
     private void setupRecycler() {
         Resources res = getResources();
-        String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
-        //aqui
         //String[] mockPlanetsData = a;
         //String[] mockPlanetsData = res.getStringArray(mock_data_for_recycler_view);
 
@@ -207,6 +235,11 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             default:
+                int id = item.getItemId();
+
+                if (id == R.id.action_settings) {
+                    return true;
+                }
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);

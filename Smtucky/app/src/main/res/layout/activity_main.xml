@@ -6,12 +6,27 @@
     android:layout_height="match_parent"
     tools:context="com.example.gonca.smtucky.MainActivity">
 
+
+
+    <android.support.design.widget.TabLayout
+        android:id="@+id/sliding_tabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabMode="fixed" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white" />
+
     <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         android:elevation="4dp"/>
+
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/my_recycler_view"
@@ -20,5 +35,26 @@
         android:scrollbars="vertical"
         app:layout_constraintTop_toBottomOf="@+id/my_toolbar"
         tools:listitem="@layout/item_view" />
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:minHeight="?attr/actionBarSize"
+        android:background="#2196F3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </android.support.v7.widget.Toolbar>
+
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tabLayout"
+        android:scrollbars="horizontal"
+        android:layout_below="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        app:layout_scrollFlags="scroll|enterAlways" />
+
+
+
+
 
 </android.support.constraint.ConstraintLayout>
