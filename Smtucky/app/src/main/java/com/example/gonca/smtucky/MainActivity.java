@@ -1,6 +1,5 @@
 package com.example.gonca.smtucky;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
@@ -44,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     Routes routes = null;
+    private JSONArray j;
 
 
     private class APIReceiver extends BroadcastReceiver {
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
             String route=routes.getRoutes().get(i).getRoute_name();
 
             if (!route.equals("Desconhecido")) {
-                
+
                 listOfRoutes.add(route+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
             }
             else{
@@ -128,7 +128,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
-        Toast.makeText(context, "TESTE", Toast.LENGTH_SHORT).show();
+
+
         mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addOnItemTouchListener(
@@ -169,37 +170,13 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(myToolbar);
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        //viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
-               // MainActivity.this));
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
+                MainActivity.this));
+
+        // Give the TabLayout the ViewPager
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-        final PageAdapter adapter = new PageAdapter (getSupportFragmentManager(), 3);
-        viewPager.setAdapter(adapter);
-        //viewPager.setOffscreenPageLimit(0);
-
-
         tabLayout.setupWithViewPager(viewPager);
-        //tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                Toast.makeText(MainActivity.this, "WE CHANGED TO: "+tab.getPosition(), Toast.LENGTH_SHORT).show();
-                viewPager.setCurrentItem(tab.getPosition());
-                //adapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
-
 
         setupRecycler();
 
@@ -207,6 +184,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupRecycler() {
         Resources res = getResources();
+        String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
+        //aqui
+        //String[] mockPlanetsData = a;
+        //String[] mockPlanetsData = res.getStringArray(mock_data_for_recycler_view);
+
+        // Configurando o gerenciador de layout para ser uma lista.
+        //mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView = findViewById(R.id.my_recycler_view);
         mRecyclerView.setLayoutManager(layoutManager);
