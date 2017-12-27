@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                 listOfRoutes.add(route+" - "+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
             }
             else{
-                listOfRoutes.add(" - "+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
+                listOfRoutes.add(routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
             }
 
 
@@ -217,10 +217,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }
                 else if(tab.getPosition()==2){
-                    Resources res = getResources();
-                    String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
-                    mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
-                    mRecyclerView.setAdapter(mAdapter);
+
                 }
 
             }
@@ -275,18 +272,6 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 })
                         );
-                    }
-                    else if(tab.getPosition()==1){
-                        Resources res = getResources();
-                        String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
-                        mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
-                        mRecyclerView.setAdapter(mAdapter);
-
-                    }
-                    else if(tab.getPosition()==2){
-                        mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
-                        mRecyclerView.setAdapter(mAdapter);
-
                     }
 
                 }

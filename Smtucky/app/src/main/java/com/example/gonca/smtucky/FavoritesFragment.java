@@ -15,9 +15,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class FavoritesFragment extends Fragment {
     public static final String ARG_PAGE = "ARG_PAGE";
+    private RecyclerView mRecyclerView;
     private int page;
+    private RecyclerView.Adapter mAdapter;
 
     public static FavoritesFragment newInstance(int page) {
         Bundle args = new Bundle();
@@ -37,7 +42,13 @@ public class FavoritesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.favorites, container, false);
+        View view = inflater.inflate(R.layout.fragment_favorites, container, false);
+        Resources res = getResources();
+        String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
+
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
+        mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
+        mRecyclerView.setAdapter(mAdapter);
         return view;
     }
 }
