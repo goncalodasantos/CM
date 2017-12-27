@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.widget.Toast;
 
 /**
  * Created by ana_f on 26/12/2017.
@@ -26,7 +27,21 @@ public class PageAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        return PageFragment.newInstance(position + 1);
+        if (position==0){
+            Toast.makeText(context, "WE ARE AT POSITION "+position, Toast.LENGTH_SHORT).show();
+            return PageFragment.newInstance(1);
+
+        }
+        else if(position ==1){
+            Toast.makeText(context, "WE ARE AT POSITION "+position, Toast.LENGTH_SHORT).show();
+
+            return new FavoritesFragment();
+        }
+        else if(position==2){
+            Toast.makeText(context, "WE ARE AT POSITION "+position, Toast.LENGTH_SHORT).show();
+            return new WarningsFragment();
+        }
+        return PageFragment.newInstance(1);
     }
 
     @Override

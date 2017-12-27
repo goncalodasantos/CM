@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     Routes routes = null;
-    private JSONArray j;
 
 
     private class APIReceiver extends BroadcastReceiver {
@@ -107,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
             String route=routes.getRoutes().get(i).getRoute_name();
 
             if (!route.equals("Desconhecido")) {
-
+                
                 listOfRoutes.add(route+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
             }
             else{
@@ -117,8 +116,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
-
-
+        Toast.makeText(context, "TESTE", Toast.LENGTH_SHORT).show();
         mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addOnItemTouchListener(
@@ -166,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
         // Give the TabLayout the ViewPager
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
+        
 
         setupRecycler();
 
