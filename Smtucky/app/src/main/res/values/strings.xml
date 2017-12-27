@@ -8,6 +8,7 @@
     <string name="fb_login_protocol_scheme">fb1679392852080937</string>
     <string name="title_activity_route">RouteActivity</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
     <string name="hint">Alarm Name</string>
     <string name="pick_time">Pick time!</string>
     <string name="add_alarm">Add Alarm</string>
