@@ -217,9 +217,10 @@ public class MainActivity extends AppCompatActivity {
 
                 }
                 else if(tab.getPosition()==2){
-                    mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
+                    Resources res = getResources();
+                    String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
+                    mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
                     mRecyclerView.setAdapter(mAdapter);
-
                 }
 
             }
