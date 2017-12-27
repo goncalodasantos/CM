@@ -19,8 +19,10 @@ public class ItemViewHolder extends RecyclerView.ViewHolder {
     public ItemViewHolder(View itemView) {
         super(itemView);
         title = (TextView) itemView.findViewById(R.id.main_line_title);
+/*
         moreButton = (ImageButton) itemView.findViewById(R.id.main_line_more);
         deleteButton = (ImageButton) itemView.findViewById(R.id.main_line_delete);
+*/
     }
 
     public void setClickListener(MainActivity.ItemClickListener itemClickListener) {

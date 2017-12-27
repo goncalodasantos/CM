@@ -1,12 +1,13 @@
 package com.example.gonca.smtucky;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by gonca on 26/12/2017.
  */
 
-public class Route {
+public class Route implements Serializable {
 
     private String official_name;
     private String route_name;
