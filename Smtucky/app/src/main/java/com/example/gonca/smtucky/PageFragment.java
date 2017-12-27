@@ -25,7 +25,7 @@ public class PageFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        page = getArguments().getInt(ARG_PAGE);
+        page = 1;
     }
 
     @Override

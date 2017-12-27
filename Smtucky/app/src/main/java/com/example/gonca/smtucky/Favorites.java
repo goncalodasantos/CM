@@ -79,10 +79,8 @@ public class Favorites extends AppCompatActivity {
         //Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         //setSupportActionBar(myToolbar);
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
-
-                    Favorites.this));
+        //ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        //viewPager.setAdapter(new PageAdapter(getSupportFragmentManager()));
 
         //TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         //tabLayout.setupWithViewPager(viewPager);
