@@ -9,5 +9,9 @@
     <string name="title_activity_route">RouteActivity</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hint">Alarm Name</string>
+    <string name="pick_time">Pick time!</string>
+    <string name="add_alarm">Add Alarm</string>
+    <string name="routes">Routes</string>
+    <string name="no_permission">This alarm will drop everywhere!</string>
 </resources>
