@@ -64,9 +64,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.v("stuff", "debug");
 
 
-
-                ArrayList<Route> listOfRoutes = new ArrayList<>();
-
                 for (int i = 0; i < dataarray.length(); i++) {
 
 
@@ -81,20 +78,9 @@ public class MainActivity extends AppCompatActivity {
                     ArrayList<String> times = new ArrayList<>();
 
 
-
-                        Route rt = new Route(dataarray.getJSONObject(i).get("route_official").toString(), dataarray.getJSONObject(i).get("route_name").toString(), Integer.parseInt(dataarray.getJSONObject(i).get("id").toString()));
-
-
-                        JSONArray dataarray2 = (JSONArray) dataarray.getJSONObject(i).get("hours");
-                        ArrayList<String> times = new ArrayList<>();
-
                         for (int j = 0; j < dataarray2.length(); j++) {
                             times.add(dataarray2.getJSONObject(j).get("time").toString());
                         }
-
-
-
-
 
                         //rt.setTimes(times);
 
@@ -111,11 +97,6 @@ public class MainActivity extends AppCompatActivity {
                         routes.getRoutes().add(rt);
 
                     }
-
-                    rt.setTimes(times);
-
-                    rt.setFrom(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(0));
-                    rt.setTo(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(1));
 
 
 
@@ -181,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        if(routesInDb==null){
+        if(routesInDb.size()==0){
 
             IntentFilter filter = new IntentFilter();
             filter.addAction("action");
@@ -196,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
 
-                    // Get the ViewPager and set it's PagerAdapter so that it can display items
+        // Get the ViewPager and set it's PagerAdapter so that it can display items
         final ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         //viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
                // MainActivity.this));
@@ -262,18 +243,63 @@ public class MainActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
 
-            Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-            setSupportActionBar(myToolbar);
-
             // Get the ViewPager and set it's PagerAdapter so that it can display items
-            ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-            viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
-                    MainActivity.this));
-
-            // Give the TabLayout the ViewPager
+            final ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+            //viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
+            // MainActivity.this));
             TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-            tabLayout.setupWithViewPager(viewPager);
+            final PageAdapter adapter = new PageAdapter (getSupportFragmentManager(), 3);
+            viewPager.setAdapter(adapter);
+            //viewPager.setOffscreenPageLimit(0);
 
+
+            tabLayout.setupWithViewPager(viewPager);
+            //tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+            viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+            tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                @Override
+                public void onTabSelected(TabLayout.Tab tab) {
+                    Toast.makeText(MainActivity.this, "WE CHANGED TO: "+tab.getPosition(), Toast.LENGTH_SHORT).show();
+                    viewPager.setCurrentItem(tab.getPosition());
+                    if(tab.getPosition()==0) {
+                        mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
+                        mRecyclerView.setAdapter(mAdapter);
+                        mRecyclerView.addOnItemTouchListener(
+                                new RecyclerItemClickListener(MainActivity.this, new RecyclerItemClickListener.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(View view, int position) {
+                                        Intent i = new Intent(MainActivity.this, RouteActivity.class);
+                                        startActivity(i);
+
+                                    }
+                                })
+                        );
+                    }
+                    else if(tab.getPosition()==1){
+                        Resources res = getResources();
+                        String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
+                        mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
+                        mRecyclerView.setAdapter(mAdapter);
+
+                    }
+                    else if(tab.getPosition()==2){
+                        mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
+                        mRecyclerView.setAdapter(mAdapter);
+
+                    }
+
+                }
+
+                @Override
+                public void onTabUnselected(TabLayout.Tab tab) {
+
+                }
+
+                @Override
+                public void onTabReselected(TabLayout.Tab tab) {
+
+                }
+            });
             setupRecycler();
 
             updateUI(this);
