@@ -51,46 +51,57 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             //>handle the received broadcast message
 
-            String value1 = intent.getStringExtra("response");
-            Log.d("stuff", value1);
-            try {
-                JSONObject stuff = new JSONObject(value1);
-                JSONArray dataarray = new JSONArray(stuff.get("data").toString());
-
-                Log.v("stuff", "debug");
+            String success = intent.getStringExtra("success");
 
 
+            Log.v("stuff", success);
 
-                ArrayList<Route> listOfRoutes = new ArrayList<>();
+            if(success.equals("yes")) {
+                String value1 = intent.getStringExtra("response");
 
-                for (int i = 0; i < dataarray.length(); i++) {
+                try {
+                    JSONObject stuff = new JSONObject(value1);
+                    JSONArray dataarray = new JSONArray(stuff.get("data").toString());
 
 
-                    Route rt = new Route(dataarray.getJSONObject(i).get("route_official").toString(), dataarray.getJSONObject(i).get("route_name").toString(), Integer.parseInt(dataarray.getJSONObject(i).get("id").toString()));
 
 
-                    JSONArray dataarray2 = (JSONArray) dataarray.getJSONObject(i).get("hours");
-                    ArrayList<String> times = new ArrayList<>();
+                    ArrayList<Route> listOfRoutes = new ArrayList<>();
 
-                    for (int j = 0; j < dataarray2.length(); j++) {
-                        times.add(dataarray2.getJSONObject(j).get("time").toString());
+                    for (int i = 0; i < dataarray.length(); i++) {
+
+
+                        Route rt = new Route(dataarray.getJSONObject(i).get("route_official").toString(), dataarray.getJSONObject(i).get("route_name").toString(), Integer.parseInt(dataarray.getJSONObject(i).get("id").toString()));
+
+
+                        JSONArray dataarray2 = (JSONArray) dataarray.getJSONObject(i).get("hours");
+                        ArrayList<String> times = new ArrayList<>();
+
+                        for (int j = 0; j < dataarray2.length(); j++) {
+                            times.add(dataarray2.getJSONObject(j).get("time").toString());
+                        }
+
+                        rt.setTimes(times);
+
+                        rt.setFrom(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(0));
+                        rt.setTo(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(1));
+
+
+                        routes.getRoutes().add(rt);
                     }
 
-                    rt.setTimes(times);
-
-                    rt.setFrom(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(0));
-                    rt.setTo(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(1));
+                    Log.v("stuff", "Connection to server done");
+                    updateUI(context);
 
 
-                    routes.getRoutes().add(rt);
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
+            }
+            else{
+                Log.v("stuff", "Can't connect to server");
 
-                Log.v("stuff","oi3");
-                updateUI(context);
 
-
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
 
         }
