@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     private RouteDB route_db;
 
-
+    
     private class APIReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         route_db = Room.databaseBuilder(getApplicationContext(),RouteDB.class, "routesxg").allowMainThreadQueries().build();
@@ -365,6 +365,14 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.add_alarm:
                 intent = new Intent(MainActivity.this, AddAlarmActivity.class);
+                MainActivity.this.startActivity(intent);
+                return true;
+
+            case R.id.see_route:
+                intent = new Intent(MainActivity.this, RouteActivity.class);
+                Bundle b = new Bundle();
+                b.putSerializable("route", routes.getRoutes().get(0));
+                intent.putExtras(b); //Put your id to your next Intent
                 MainActivity.this.startActivity(intent);
                 return true;
             default:
