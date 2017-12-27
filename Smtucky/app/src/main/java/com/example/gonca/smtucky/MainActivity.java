@@ -87,10 +87,14 @@ public class MainActivity extends AppCompatActivity {
                             times.add(dataarray2.getJSONObject(j).get("time").toString());
                         }
 
+
+
+
+
                         //rt.setTimes(times);
 
                         rt.setFrom(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(0));
-                        rt.setTo(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(1));
+                        rt.setTo(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(((JSONArray) dataarray.getJSONObject(i).get("points")).length() -1));
 
 
                         try {
@@ -136,10 +140,10 @@ public class MainActivity extends AppCompatActivity {
 
             if (!route.equals("Desconhecido")) {
 
-                listOfRoutes.add(route+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
+                listOfRoutes.add(route+" - "+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
             }
             else{
-                listOfRoutes.add(routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
+                listOfRoutes.add(" - "+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
             }
 
 
@@ -206,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else{
             routes.setRoutes(routesInDb);
-            
+
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
 
