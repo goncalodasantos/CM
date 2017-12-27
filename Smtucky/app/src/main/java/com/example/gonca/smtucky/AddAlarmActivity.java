@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -17,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextClock;
 import android.widget.TextView;
@@ -36,6 +39,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -67,6 +71,7 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
     }
 
     private void setupRoutesSpinner() {
+        // TODO: values to text showed up
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -86,9 +91,7 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
                         @Override
                         public void onSuccess(Location location) {
                             // Got last known location. In some rare situations this can be null.
-                            Log.d("location", "aqui");
                             if (location != null) {
-                                Log.d("location", "oi");
                                 // Logic to handle location object
                                 AddAlarmActivity.this.location = location;
                                 SupportMapFragment mapFragment =
@@ -133,7 +136,7 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
             case MY_PERMISSIONS_REQUEST_READ_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
-                        && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
@@ -153,12 +156,11 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
             // permissions this app might request
         }
     }
-
     @Override
     public void onMapReady(GoogleMap map) {
         map.getUiSettings().setAllGesturesEnabled(false);
         map.getUiSettings().setScrollGesturesEnabled(false);
-        
+
         map.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())).title("Marker"));
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(new LatLng(location.getLatitude(), location.getLongitude())) // Center Set
@@ -167,6 +169,29 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
                 .tilt(30)                   // Tilt of the camera to 30 degrees
                 .build();                   // Creates a CameraPosition from the builder
         map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+    }
+
+    public void addAlarm(View view) {
+        Boolean[] daysToDrop = readValuesFromCheckbox();
+        String name = ((TextInputLayout)findViewById(R.id.textInputLayout2)).getEditText().getText().toString();
+        String route = ((Spinner) findViewById(R.id.spinner)).getSelectedItem().toString();
+        String time = ((TextView) findViewById(R.id.textView2)).getText().toString();
+    }
+
+    public Boolean[] readValuesFromCheckbox() {
+        Boolean[] toReturn = new Boolean[7];
+        toReturn[0] = ((CheckBox) findViewById(R.id.checkBox5)).isChecked();
+        toReturn[1] = ((CheckBox) findViewById(R.id.checkBox3)).isChecked();
+        toReturn[2] = ((CheckBox) findViewById(R.id.checkBox4)).isChecked();
+        toReturn[3] = ((CheckBox) findViewById(R.id.checkBox)).isChecked();
+        toReturn[4] = ((CheckBox) findViewById(R.id.checkBox6)).isChecked();
+        toReturn[5] = ((CheckBox) findViewById(R.id.checkBox7)).isChecked();
+        toReturn[6] = ((CheckBox) findViewById(R.id.checkBox8)).isChecked();
+        return toReturn;
+    }
+
+    public void goBack(View view) {
+        super.onBackPressed();
     }
 
     @Override
