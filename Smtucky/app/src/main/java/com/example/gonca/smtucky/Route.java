@@ -1,30 +1,42 @@
 package com.example.gonca.smtucky;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
+
 import java.util.ArrayList;
 
 /**
  * Created by gonca on 26/12/2017.
  */
 
+@Entity(tableName = "route")
 public class Route {
 
-    private String official_name;
-    private String route_name;
+    @PrimaryKey
     private int id;
+
+
+    private String official_name;
+
+
+    private String route_name;
+
+
     private String from;
+
+
     private String to;
+
+
     private ArrayList<String> times;
 
+    public Route() {
 
-    public Route(String official_name, String route_name, int id, String from, String to, ArrayList<String> times) {
-        this.official_name = official_name;
-        this.route_name = route_name;
-        this.id = id;
-        this.from = from;
-        this.to = to;
-        this.times = times;
     }
 
+    @Ignore
     public Route(String official_name, String route_name, int id) {
         this.official_name = official_name;
         this.route_name = route_name;
@@ -74,6 +86,7 @@ public class Route {
         this.to = to;
     }
 
+
     public ArrayList<String> getTimes() {
         return times;
     }
@@ -81,4 +94,5 @@ public class Route {
     public void setTimes(ArrayList<String> times) {
         this.times = times;
     }
+
 }

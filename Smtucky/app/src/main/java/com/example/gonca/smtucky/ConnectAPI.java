@@ -191,7 +191,7 @@ public class ConnectAPI extends Service {
             HttpURLConnection urlConnection = null;
             try {
                 // create connection
-                URL urlToRequest = new URL("http://192.168.137.1:5000/routes");
+                URL urlToRequest = new URL("http://10.7.0.74:5000/routes");
                 urlConnection = (HttpURLConnection)
                         urlToRequest.openConnection();
                 urlConnection.setConnectTimeout(CONNECTION_TIMEOUT);

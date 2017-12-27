@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
 
+import android.arch.persistence.room.Room;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -46,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
     Routes routes = null;
     ArrayList<String> listOfRoutes = new ArrayList<String>();
 
+    private RouteDB route_db;
+
 
     private class APIReceiver extends BroadcastReceiver {
         @Override
@@ -70,11 +73,43 @@ public class MainActivity extends AppCompatActivity {
                     Route rt = new Route(dataarray.getJSONObject(i).get("route_official").toString(), dataarray.getJSONObject(i).get("route_name").toString(), Integer.parseInt(dataarray.getJSONObject(i).get("id").toString()));
 
 
+
+                    ArrayList<Route> listOfRoutes = new ArrayList<>();
+
+
                     JSONArray dataarray2 = (JSONArray) dataarray.getJSONObject(i).get("hours");
                     ArrayList<String> times = new ArrayList<>();
 
-                    for (int j = 0; j < dataarray2.length(); j++) {
-                        times.add(dataarray2.getJSONObject(j).get("time").toString());
+
+
+                        Route rt = new Route(dataarray.getJSONObject(i).get("route_official").toString(), dataarray.getJSONObject(i).get("route_name").toString(), Integer.parseInt(dataarray.getJSONObject(i).get("id").toString()));
+
+
+                        JSONArray dataarray2 = (JSONArray) dataarray.getJSONObject(i).get("hours");
+                        ArrayList<String> times = new ArrayList<>();
+
+                        for (int j = 0; j < dataarray2.length(); j++) {
+                            times.add(dataarray2.getJSONObject(j).get("time").toString());
+                        }
+
+
+
+
+
+                        //rt.setTimes(times);
+
+                        rt.setFrom(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(0));
+                        rt.setTo(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(((JSONArray) dataarray.getJSONObject(i).get("points")).length() -1));
+
+
+                        try {
+                            route_db.routeDAO().insert(rt);
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
+                        routes.getRoutes().add(rt);
+
                     }
 
                     rt.setTimes(times);
@@ -83,8 +118,6 @@ public class MainActivity extends AppCompatActivity {
                     rt.setTo(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(1));
 
 
-                    routes.getRoutes().add(rt);
-                }
 
                 Log.v("stuff","oi3");
                 updateUI(context);
@@ -93,6 +126,8 @@ public class MainActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
+
 
         }
     }
@@ -109,10 +144,10 @@ public class MainActivity extends AppCompatActivity {
 
             if (!route.equals("Desconhecido")) {
 
-                listOfRoutes.add(route+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
+                listOfRoutes.add(route+" - "+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
             }
             else{
-                listOfRoutes.add(routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
+                listOfRoutes.add(" - "+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
             }
 
 
@@ -138,28 +173,30 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        route_db = Room.databaseBuilder(getApplicationContext(),RouteDB.class, "routes").allowMainThreadQueries().build();
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("action");
-        registerReceiver(new APIReceiver(), filter);
-
+        ArrayList<Route> routesInDb = (ArrayList<Route>) route_db.routeDAO().getRoutes();
 
         routes = ViewModelProviders.of(this).get(Routes.class);
 
 
-        Intent intent = new Intent(this, ConnectAPI.class);
-        intent.putExtra("decision", "getRoutes");
-        intent.putExtra("routenumber", "6");
 
-        startService(intent);//not startActivity!
+        if(routesInDb==null){
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+            IntentFilter filter = new IntentFilter();
+            filter.addAction("action");
+            registerReceiver(new APIReceiver(), filter);
 
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(myToolbar);
 
-        // Get the ViewPager and set it's PagerAdapter so that it can display items
+            Intent intent = new Intent(this, ConnectAPI.class);
+            intent.putExtra("decision", "getRoutes");
+            intent.putExtra("routenumber", "6");
+
+            startService(intent);//not startActivity!
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+
+                    // Get the ViewPager and set it's PagerAdapter so that it can display items
         final ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         //viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
                // MainActivity.this));
@@ -217,8 +254,33 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+            setupRecycler();
+        }
+        else{
+            routes.setRoutes(routesInDb);
 
-        setupRecycler();
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+
+            Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+            setSupportActionBar(myToolbar);
+
+            // Get the ViewPager and set it's PagerAdapter so that it can display items
+            ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+            viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
+                    MainActivity.this));
+
+            // Give the TabLayout the ViewPager
+            TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+            tabLayout.setupWithViewPager(viewPager);
+
+            setupRecycler();
+
+            updateUI(this);
+        }
+
+
+
 
     }
 
