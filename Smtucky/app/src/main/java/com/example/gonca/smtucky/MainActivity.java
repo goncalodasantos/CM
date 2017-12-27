@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+                    Log.v("stuff", "então man");
 
                     ArrayList<Route> listOfRoutes = new ArrayList<>();
 
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
                         Route rt = new Route(dataarray.getJSONObject(i).get("route_official").toString(), dataarray.getJSONObject(i).get("route_name").toString(), Integer.parseInt(dataarray.getJSONObject(i).get("id").toString()));
 
+                        Log.v("stuff", "então man");
 
                         JSONArray dataarray2 = (JSONArray) dataarray.getJSONObject(i).get("hours");
                         ArrayList<String> times = new ArrayList<>();
@@ -89,9 +91,19 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+                        JSONArray dataarray3 = (JSONArray) dataarray.getJSONObject(i).get("points");
+                        ArrayList<String> stops = new ArrayList<>();
+
+                        for (int j = 0; j < dataarray3.length(); j++) {
+                            stops.add(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(j));
+                        }
 
 
-                        //rt.setTimes(times);
+
+
+                        rt.setStops(stops);
+                        rt.setTimes(times);
+                        Log.v("stuff",""+ rt.getStops());
 
                         rt.setFrom(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(0));
                         rt.setTo(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(((JSONArray) dataarray.getJSONObject(i).get("points")).length() -1));
@@ -169,13 +181,16 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        route_db = Room.databaseBuilder(getApplicationContext(),RouteDB.class, "routes").allowMainThreadQueries().build();
+        route_db = Room.databaseBuilder(getApplicationContext(),RouteDB.class, "routesxg").allowMainThreadQueries().build();
 
-        ArrayList<Route> routesInDb = (ArrayList<Route>) route_db.routeDAO().getRoutes();
+        ArrayList<Route> routesInDb = null;
+        routesInDb = (ArrayList<Route>) route_db.routeDAO().getRoutes();
+        Log.v("stuff",""+route_db.routeDAO().getRoutes());
 
         routes = ViewModelProviders.of(this).get(Routes.class);
 
 
+        Log.v("stuff",""+routesInDb);
 
         if(routesInDb==null){
 

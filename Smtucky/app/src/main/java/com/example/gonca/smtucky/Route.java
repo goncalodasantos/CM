@@ -30,6 +30,8 @@ public class Route {
     private String to;
 
 
+    private ArrayList<String> stops;
+
     private ArrayList<String> times;
 
     public Route() {
@@ -93,6 +95,15 @@ public class Route {
 
     public void setTimes(ArrayList<String> times) {
         this.times = times;
+    }
+
+
+    public ArrayList<String> getStops() {
+        return stops;
+    }
+
+    public void setStops(ArrayList<String> stops) {
+        this.stops = stops;
     }
 
 }
