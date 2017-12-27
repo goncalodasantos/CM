@@ -157,25 +157,18 @@ public class MainActivity extends AppCompatActivity {
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
-        // Get the ViewPager and set it's PagerAdapter so that it can display items
         final ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        //viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
-               // MainActivity.this));
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         final PageAdapter adapter = new PageAdapter (getSupportFragmentManager(), 3);
         viewPager.setAdapter(adapter);
-        //viewPager.setOffscreenPageLimit(0);
-
 
         tabLayout.setupWithViewPager(viewPager);
-        //tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 Toast.makeText(MainActivity.this, "WE CHANGED TO: "+tab.getPosition(), Toast.LENGTH_SHORT).show();
                 viewPager.setCurrentItem(tab.getPosition());
-                //adapter.notifyDataSetChanged();
             }
 
             @Override
@@ -221,22 +214,16 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent;
         switch (item.getItemId()) {
             case R.id.logout:
                 LoginManager.getInstance().logOut();
-                intent = new Intent(MainActivity.this, LoginActivity.class);
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 MainActivity.this.startActivity(intent);
                 return true;
 
-
-            case R.id.add_alarm:
-                intent = new Intent(MainActivity.this, AddAlarmActivity.class);
-                MainActivity.this.startActivity(intent);
-                return true;
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
