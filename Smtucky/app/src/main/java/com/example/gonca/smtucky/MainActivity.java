@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
             String route=routes.getRoutes().get(i).getRoute_name();
 
             if (!route.equals("Desconhecido")) {
-                
+
                 listOfRoutes.add(route+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
             }
             else{
@@ -119,7 +119,19 @@ public class MainActivity extends AppCompatActivity {
 
         }
         Toast.makeText(context, "TESTE", Toast.LENGTH_SHORT).show();
+        mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addOnItemTouchListener(
+                new RecyclerItemClickListener(MainActivity.this, new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Intent i = new Intent(MainActivity.this, RouteActivity.class);
+                        startActivity(i);
 
+
+                    }
+                })
+        );
 
     }
 
@@ -135,11 +147,11 @@ public class MainActivity extends AppCompatActivity {
         routes = ViewModelProviders.of(this).get(Routes.class);
 
 
-        //Intent intent = new Intent(this, ConnectAPI.class);
-        //intent.putExtra("decision", "getRoutes");
-        //intent.putExtra("routenumber", "6");
+        Intent intent = new Intent(this, ConnectAPI.class);
+        intent.putExtra("decision", "getRoutes");
+        intent.putExtra("routenumber", "6");
 
-        //startService(intent);//not startActivity!
+        startService(intent);//not startActivity!
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -166,30 +178,32 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "WE CHANGED TO: "+tab.getPosition(), Toast.LENGTH_SHORT).show();
                 viewPager.setCurrentItem(tab.getPosition());
                 if(tab.getPosition()==0) {
-                    Resources res = getResources();
-                    String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
-                    mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
+                    mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
                     mRecyclerView.setAdapter(mAdapter);
-                    //mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
-                    //mRecyclerView.setAdapter(mAdapter);
-                    /*mRecyclerView.addOnItemTouchListener(
+                    mRecyclerView.addOnItemTouchListener(
                             new RecyclerItemClickListener(MainActivity.this, new RecyclerItemClickListener.OnItemClickListener() {
                                 @Override
                                 public void onItemClick(View view, int position) {
                                     Intent i = new Intent(MainActivity.this, RouteActivity.class);
                                     startActivity(i);
+
                                 }
                             })
-                    );*/
+                    );
                 }
                 else if(tab.getPosition()==1){
-                    mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
+                    Resources res = getResources();
+                    String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
+                    mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
                     mRecyclerView.setAdapter(mAdapter);
+
                 }
                 else if(tab.getPosition()==2){
                     mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
                     mRecyclerView.setAdapter(mAdapter);
+
                 }
+
             }
 
             @Override
@@ -213,8 +227,7 @@ public class MainActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView = findViewById(R.id.my_recycler_view);
         mRecyclerView.setLayoutManager(layoutManager);
-        String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
-        mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
+
         // Adiciona o adapter que irá anexar os objetos à lista.
         // Está sendo criado com lista vazia, pois será preenchida posteriormente.
         mRecyclerView.setAdapter(mAdapter);
