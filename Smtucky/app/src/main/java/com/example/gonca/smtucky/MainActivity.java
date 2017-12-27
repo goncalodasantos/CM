@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     Routes routes = null;
+    ArrayList<String> listOfRoutes = new ArrayList<String>();
 
 
     private class APIReceiver extends BroadcastReceiver {
@@ -101,8 +102,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void updateUI(Context context) {
-        ArrayList<String> listOfRoutes = new ArrayList<String>();
 
+        listOfRoutes = new ArrayList<String>();
         for (int i = 0; i < routes.getRoutes().size(); i++) {
             String route=routes.getRoutes().get(i).getRoute_name();
 
@@ -118,18 +119,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
         Toast.makeText(context, "TESTE", Toast.LENGTH_SHORT).show();
-        mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
-        mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.addOnItemTouchListener(
-                new RecyclerItemClickListener(context, new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override public void onItemClick(View view, int position) {
-                        Intent i = new Intent(MainActivity.this, RouteActivity.class);
-                        startActivity(i);
 
-
-                    }
-                })
-        );
 
     }
 
@@ -145,11 +135,11 @@ public class MainActivity extends AppCompatActivity {
         routes = ViewModelProviders.of(this).get(Routes.class);
 
 
-        Intent intent = new Intent(this, ConnectAPI.class);
-        intent.putExtra("decision", "getRoutes");
-        intent.putExtra("routenumber", "6");
+        //Intent intent = new Intent(this, ConnectAPI.class);
+        //intent.putExtra("decision", "getRoutes");
+        //intent.putExtra("routenumber", "6");
 
-        startService(intent);//not startActivity!
+        //startService(intent);//not startActivity!
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -157,18 +147,49 @@ public class MainActivity extends AppCompatActivity {
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
+        // Get the ViewPager and set it's PagerAdapter so that it can display items
         final ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        //viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
+               // MainActivity.this));
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         final PageAdapter adapter = new PageAdapter (getSupportFragmentManager(), 3);
         viewPager.setAdapter(adapter);
+        //viewPager.setOffscreenPageLimit(0);
+
 
         tabLayout.setupWithViewPager(viewPager);
+        //tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 Toast.makeText(MainActivity.this, "WE CHANGED TO: "+tab.getPosition(), Toast.LENGTH_SHORT).show();
                 viewPager.setCurrentItem(tab.getPosition());
+                if(tab.getPosition()==0) {
+                    Resources res = getResources();
+                    String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
+                    mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
+                    mRecyclerView.setAdapter(mAdapter);
+                    //mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
+                    //mRecyclerView.setAdapter(mAdapter);
+                    /*mRecyclerView.addOnItemTouchListener(
+                            new RecyclerItemClickListener(MainActivity.this, new RecyclerItemClickListener.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(View view, int position) {
+                                    Intent i = new Intent(MainActivity.this, RouteActivity.class);
+                                    startActivity(i);
+                                }
+                            })
+                    );*/
+                }
+                else if(tab.getPosition()==1){
+                    mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
+                    mRecyclerView.setAdapter(mAdapter);
+                }
+                else if(tab.getPosition()==2){
+                    mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
+                    mRecyclerView.setAdapter(mAdapter);
+                }
             }
 
             @Override
@@ -192,7 +213,8 @@ public class MainActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView = findViewById(R.id.my_recycler_view);
         mRecyclerView.setLayoutManager(layoutManager);
-
+        String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
+        mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
         // Adiciona o adapter que irá anexar os objetos à lista.
         // Está sendo criado com lista vazia, pois será preenchida posteriormente.
         mRecyclerView.setAdapter(mAdapter);
@@ -214,16 +236,22 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
             case R.id.logout:
                 LoginManager.getInstance().logOut();
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                intent = new Intent(MainActivity.this, LoginActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 MainActivity.this.startActivity(intent);
                 return true;
 
+
+            case R.id.add_alarm:
+                intent = new Intent(MainActivity.this, AddAlarmActivity.class);
+                MainActivity.this.startActivity(intent);
+                return true;
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
