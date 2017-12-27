@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
 
+import android.arch.persistence.room.Room;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -45,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
     Routes routes = null;
     private JSONArray j;
 
+    private RouteDB route_db;
+
 
     private class APIReceiver extends BroadcastReceiver {
         @Override
@@ -66,6 +69,9 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
+
+
                     ArrayList<Route> listOfRoutes = new ArrayList<>();
 
                     for (int i = 0; i < dataarray.length(); i++) {
@@ -81,17 +87,26 @@ public class MainActivity extends AppCompatActivity {
                             times.add(dataarray2.getJSONObject(j).get("time").toString());
                         }
 
-                        rt.setTimes(times);
+                        //rt.setTimes(times);
 
                         rt.setFrom(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(0));
                         rt.setTo(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(1));
 
 
+                        try {
+                            route_db.routeDAO().insert(rt);
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
                         routes.getRoutes().add(rt);
                     }
 
                     Log.v("stuff", "Connection to server done");
                     updateUI(context);
+
+
+
 
 
                 } catch (JSONException e) {
@@ -103,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
 
 
             }
+
+
 
         }
     }
@@ -148,37 +165,70 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        route_db = Room.databaseBuilder(getApplicationContext(),RouteDB.class, "routes").allowMainThreadQueries().build();
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("action");
-        registerReceiver(new APIReceiver(), filter);
-
+        ArrayList<Route> routesInDb = (ArrayList<Route>) route_db.routeDAO().getRoutes();
 
         routes = ViewModelProviders.of(this).get(Routes.class);
 
 
-        Intent intent = new Intent(this, ConnectAPI.class);
-        intent.putExtra("decision", "getRoutes");
-        intent.putExtra("routenumber", "6");
 
-        startService(intent);//not startActivity!
+        if(routesInDb==null){
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+            IntentFilter filter = new IntentFilter();
+            filter.addAction("action");
+            registerReceiver(new APIReceiver(), filter);
 
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(myToolbar);
 
-        // Get the ViewPager and set it's PagerAdapter so that it can display items
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
-                MainActivity.this));
 
-        // Give the TabLayout the ViewPager
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-        tabLayout.setupWithViewPager(viewPager);
 
-        setupRecycler();
+            Intent intent = new Intent(this, ConnectAPI.class);
+            intent.putExtra("decision", "getRoutes");
+            intent.putExtra("routenumber", "6");
+
+            startService(intent);//not startActivity!
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+
+            Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+            setSupportActionBar(myToolbar);
+
+            // Get the ViewPager and set it's PagerAdapter so that it can display items
+            ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+            viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
+                    MainActivity.this));
+
+            // Give the TabLayout the ViewPager
+            TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+            tabLayout.setupWithViewPager(viewPager);
+
+            setupRecycler();
+        }
+        else{
+            routes.setRoutes(routesInDb);
+            
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+
+            Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+            setSupportActionBar(myToolbar);
+
+            // Get the ViewPager and set it's PagerAdapter so that it can display items
+            ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+            viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
+                    MainActivity.this));
+
+            // Give the TabLayout the ViewPager
+            TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+            tabLayout.setupWithViewPager(viewPager);
+
+            setupRecycler();
+
+            updateUI(this);
+        }
+
+
+
 
     }
 

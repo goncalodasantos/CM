@@ -28,11 +28,12 @@ public class Routes extends ViewModel {
             routes = new ArrayList<Route>();
         }
 
-        this.routes=routes;
 
 
 
     }
+
+
 
     void addRoute(Route route) {
         if (this.routes == null) {
@@ -43,4 +44,7 @@ public class Routes extends ViewModel {
 
     }
 
+    public void setRoutes(ArrayList<Route> routes) {
+        this.routes = routes;
+    }
 }
