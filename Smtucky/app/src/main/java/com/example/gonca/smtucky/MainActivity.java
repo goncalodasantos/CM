@@ -358,12 +358,20 @@ public class MainActivity extends AppCompatActivity {
                    adapter.refreshFragment(tab.getPosition());
 
                } else if (tab.getPosition() == 1) {
-                   viewPager.setCurrentItem(tab.getPosition());
-                   adapter.refreshFragment(tab.getPosition());
+                   //viewPager.setCurrentItem(tab.getPosition());
+                   //adapter.refreshFragment(tab.getPosition());
+                    Resources res = getResources();
+                    String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
+                    mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
+                    mRecyclerView.setAdapter(mAdapter);
 
                } else if (tab.getPosition() == 2) {
-                   viewPager.setCurrentItem(tab.getPosition());
-                   adapter.refreshFragment(tab.getPosition());
+                   //viewPager.setCurrentItem(tab.getPosition());
+                   //adapter.refreshFragment(tab.getPosition());
+                   Resources res = getResources();
+                    String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
+                    mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
+                    mRecyclerView.setAdapter(mAdapter);
                }
 
            }
