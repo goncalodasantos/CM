@@ -33,7 +33,7 @@ public class TimePickerFragment extends DialogFragment
         Calendar c = Calendar.getInstance();
         if(time != "") {
             Log.d("dialog", time);
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm a", Locale.ENGLISH);
+            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm aa", Locale.ENGLISH);
             try {
                 c.setTime(sdf.parse(time));
             } catch (ParseException e) {
@@ -51,7 +51,7 @@ public class TimePickerFragment extends DialogFragment
 
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm");
-        SimpleDateFormat dateFormat2 = new SimpleDateFormat("hh:mm aa");
+        SimpleDateFormat dateFormat2 = new SimpleDateFormat("hh:mm a");
 
         try {
             Date date = dateFormat.parse(Integer.toString(hourOfDay) + ':' + Integer.toString(minute));
