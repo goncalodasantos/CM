@@ -190,28 +190,40 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
-
-        user_db = Room.databaseBuilder(getApplicationContext(),UserDB.class, "userxgxssx").allowMainThreadQueries().build();
-
-
-
-
-
-
-
         Log.v("stuff-startup","Populating ViewModel");
 
+        user_db = Room.databaseBuilder(getApplicationContext(),UserDB.class, "userxgxssxn").allowMainThreadQueries().build();
+
+
+
+        List<User> listOfUsers = user_db.UserDAO().getUsers();
 
         current_viewmodel = ViewModelProviders.of(this).get(CurrentDataModel.class);
+
+
+        current_viewmodel.setUsers((ArrayList<User>) listOfUsers);
+
+        String currentUserEmail=getIntent().getStringExtra("email");
+
+
+
+        for (int j=0;j<current_viewmodel.getUsers().size();j++){
+            if(current_viewmodel.getUsers().get(j).getMail().equals(currentUserEmail)){
+                current_viewmodel.setUser(current_viewmodel.getUsers().get(j));
+            }
+
+        }
+
+
+
+
 
 
 
 
         List<Warning> listOfWarnings = user_db.WarningDao().getWarnings();
 
-        List<User> listOfUsers = user_db.UserDAO().getUsers();
 
-        current_viewmodel.setUsers((ArrayList<User>) listOfUsers);
         current_viewmodel.setWarnings((ArrayList<Warning>) listOfWarnings);
 
 
@@ -350,16 +362,6 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.startActivity(intent);
                 return true;
 
-            case R.id.see_route:
-                Log.v("stuff-debug","click");
-                Log.v("stuff-debug",routes.getRoutes().get(0).getFrom());
-                intent = new Intent(MainActivity.this, RouteActivity.class);
-                Bundle b = new Bundle();
-                b.putSerializable("routeFrom", routes.getRoutes().get(0));
-                b.putSerializable("routeTo", routes.getRoutes().get(1));
-                intent.putExtras(b); //Put your id to your next Intent
-                MainActivity.this.startActivity(intent);
-                return true;
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
