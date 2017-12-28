@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
 
     private RouteDB route_db;
 
-    
     private class APIReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -163,9 +162,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(toolbar);
+
         route_db = Room.databaseBuilder(getApplicationContext(),RouteDB.class, "routesxg").allowMainThreadQueries().build();
 
         ArrayList<Route> routesInDb = null;
@@ -173,9 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
         routes = ViewModelProviders.of(this).get(Routes.class);
 
-
-
-        if(routesInDb.size()==0){
+        if(routesInDb.size()==0) {
 
             IntentFilter filter = new IntentFilter();
             filter.addAction("action");
@@ -187,9 +189,9 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("routenumber", "6");
 
             startService(intent);//not startActivity!
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_main);
-
+        } else {
+            routes.setRoutes(routesInDb);
+        }
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         final ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         //viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
@@ -249,78 +251,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-            setupRecycler();
-        }
-        else{
-            routes.setRoutes(routesInDb);
-
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_main);
-
-            // Get the ViewPager and set it's PagerAdapter so that it can display items
-            final ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-            //viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
-            // MainActivity.this));
-            TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-            final PageAdapter adapter = new PageAdapter (getSupportFragmentManager(), 3);
-            viewPager.setAdapter(adapter);
-            //viewPager.setOffscreenPageLimit(0);
-
-
-            tabLayout.setupWithViewPager(viewPager);
-            //tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-            viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-            tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-                @Override
-                public void onTabSelected(TabLayout.Tab tab) {
-                    Toast.makeText(MainActivity.this, "WE CHANGED TO: "+tab.getPosition(), Toast.LENGTH_SHORT).show();
-                    viewPager.setCurrentItem(tab.getPosition());
-                    if(tab.getPosition()==0) {
-                        mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
-                        mRecyclerView.setAdapter(mAdapter);
-                        mRecyclerView.addOnItemTouchListener(
-                                new RecyclerItemClickListener(MainActivity.this, new RecyclerItemClickListener.OnItemClickListener() {
-                                    @Override
-                                    public void onItemClick(View view, int position) {
-                                        Intent i = new Intent(MainActivity.this, RouteActivity.class);
-                                        startActivity(i);
-
-                                    }
-                                })
-                        );
-                    }
-                    else if(tab.getPosition()==1){
-                        Resources res = getResources();
-                        String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
-                        mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
-                        mRecyclerView.setAdapter(mAdapter);
-
-                    }
-                    else if(tab.getPosition()==2){
-                        mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
-                        mRecyclerView.setAdapter(mAdapter);
-
-                    }
-
-                }
-
-                @Override
-                public void onTabUnselected(TabLayout.Tab tab) {
-
-                }
-
-                @Override
-                public void onTabReselected(TabLayout.Tab tab) {
-
-                }
-            });
-            setupRecycler();
-
-            updateUI(this);
-        }
-
-
-
+        setupRecycler();
+        updateUI(this);
 
     }
 
@@ -346,9 +278,6 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    // Adiciona o adapter que irá anexar os objetos à lista.
-    // Está sendo criado com lista vazia, pois será preenchida posteriormente.
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
@@ -371,7 +300,8 @@ public class MainActivity extends AppCompatActivity {
             case R.id.see_route:
                 intent = new Intent(MainActivity.this, RouteActivity.class);
                 Bundle b = new Bundle();
-                b.putSerializable("route", routes.getRoutes().get(0));
+                b.putSerializable("routeFrom", routes.getRoutes().get(0));
+                b.putSerializable("routeTo", routes.getRoutes().get(1));
                 intent.putExtras(b); //Put your id to your next Intent
                 MainActivity.this.startActivity(intent);
                 return true;

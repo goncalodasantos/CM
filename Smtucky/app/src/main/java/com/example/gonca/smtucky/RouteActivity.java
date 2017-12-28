@@ -33,9 +33,10 @@ import java.util.Arrays;
 
 public class RouteActivity extends AppCompatActivity {
 
-    private Route route;
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
+    private Route routeFrom, routeTo;
+    private RecyclerView mRecyclerView1, mRecyclerView2;
+    private RecyclerView.Adapter mAdapter1, mAdapter2;
+    private int state = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,31 +46,87 @@ public class RouteActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
 
-        route = (Route) getIntent().getExtras().getSerializable("route");
+        routeFrom = (Route) getIntent().getExtras().getSerializable("routeFrom");
+        routeTo = (Route) getIntent().getExtras().getSerializable("routeTo");
 
-        ((TextView) findViewById(R.id.textView7)).setText(route.getRoute_name());
-        ((TextView) findViewById(R.id.textView9)).setText(route.getFrom());
-        ((TextView) findViewById(R.id.textView10)).setText(route.getTo());
+        ((TextView) findViewById(R.id.textView7)).setText(routeFrom.getRoute_name());
+        ((TextView) findViewById(R.id.textView9)).setText(routeFrom.getFrom());
+        ((TextView) findViewById(R.id.textView10)).setText(routeFrom.getTo());
 
-        setupRecycler();
+        setupRecyclers();
     }
 
-    private void setupRecycler() {
+    private void setupRecyclers() {
 
-        // Configurando o gerenciador de layout para ser uma lista.
-        mAdapter = new ItemViewAdapter(new ArrayList<>(route.getTimes()));
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        mRecyclerView = findViewById(R.id.recyclerView1);
-        mRecyclerView.setLayoutManager(layoutManager);
+        if(state == 0) {
+            mAdapter1 = new ItemViewAdapter(new ArrayList<>(routeFrom.getTimes()));
 
-        // Adiciona o adapter que irá anexar os objetos à lista.
-        // Está sendo criado com lista vazia, pois será preenchida posteriormente.
-        mRecyclerView.setAdapter(mAdapter);
+            LinearLayoutManager layoutManager1 = new LinearLayoutManager(this);
+            mRecyclerView1 = findViewById(R.id.recyclerView1);
 
-        // Configurando um dividr entre linhas, para uma melhor visualização.
-        mRecyclerView.addItemDecoration(
-                new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+            mRecyclerView1.setLayoutManager(layoutManager1);
+
+            mRecyclerView1.setAdapter(mAdapter1);
+
+            // Configurando um dividr entre linhas, para uma melhor visualização.
+            mRecyclerView1.addItemDecoration(
+                    new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+
+            LinearLayoutManager layoutManager2 = new LinearLayoutManager(this);
+            mAdapter2 = new ItemViewAdapter(new ArrayList<>(routeFrom.getStops()));
+
+            mRecyclerView2 = findViewById(R.id.recyclerView2);
+
+            mRecyclerView2.setLayoutManager(layoutManager2);
+            mRecyclerView2.setAdapter(mAdapter2);
+
+            // Configurando um dividr entre linhas, para uma melhor visualização.
+            mRecyclerView2.addItemDecoration(
+                    new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+
+        } else {
+            mAdapter1 = new ItemViewAdapter(new ArrayList<>(routeTo.getTimes()));
+
+            LinearLayoutManager layoutManager1 = new LinearLayoutManager(this);
+            mRecyclerView1 = findViewById(R.id.recyclerView1);
+
+            mRecyclerView1.setLayoutManager(layoutManager1);
+
+            mRecyclerView1.setAdapter(mAdapter1);
+
+            // Configurando um dividr entre linhas, para uma melhor visualização.
+            mRecyclerView1.addItemDecoration(
+                    new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+
+            LinearLayoutManager layoutManager2 = new LinearLayoutManager(this);
+            mAdapter2 = new ItemViewAdapter(new ArrayList<>(routeTo.getStops()));
+
+            mRecyclerView2 = findViewById(R.id.recyclerView2);
+
+            mRecyclerView2.setLayoutManager(layoutManager2);
+            mRecyclerView2.setAdapter(mAdapter2);
+
+            // Configurando um dividr entre linhas, para uma melhor visualização.
+            mRecyclerView2.addItemDecoration(
+                    new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+
+        }
+    }
+
+    public void tradeRoutes(View view) {
+        if(state == 0) {
+            state = 1;
+            ((TextView) findViewById(R.id.textView7)).setText(routeTo.getRoute_name());
+            ((TextView) findViewById(R.id.textView9)).setText(routeTo.getFrom());
+            ((TextView) findViewById(R.id.textView10)).setText(routeTo.getTo());
+        } else {
+            state = 0;
+            ((TextView) findViewById(R.id.textView7)).setText(routeFrom.getRoute_name());
+            ((TextView) findViewById(R.id.textView9)).setText(routeFrom.getFrom());
+            ((TextView) findViewById(R.id.textView10)).setText(routeFrom.getTo());
+        }
+        setupRecyclers();
     }
 
     @Override
