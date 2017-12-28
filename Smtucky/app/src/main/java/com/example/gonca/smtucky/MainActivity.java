@@ -106,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
                     updateUIwithRoutes(context);
                     Log.v("stuff-startup","Loaded Routes from the API :"+routes.getRoutes().size());
 
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -240,13 +241,16 @@ public class MainActivity extends AppCompatActivity {
 
         Log.v("stuff-startup","Loaded Routes from the Room: " + routesInDb.size());
 
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
 
 
         Log.v("stuff-startup","Loaded Routes from the Room: " + routesInDb.size());
 
+
         routes = ViewModelProviders.of(this).get(Routes.class);
+
 
 
 
@@ -283,34 +287,24 @@ public class MainActivity extends AppCompatActivity {
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-           @Override
-           public void onTabSelected(TabLayout.Tab tab) {
-               Toast.makeText(MainActivity.this, "WE CHANGED TO: " + tab.getPosition(), Toast.LENGTH_SHORT).show();
+                                               @Override
+                                               public void onTabSelected(TabLayout.Tab tab) {
+                                                   Toast.makeText(MainActivity.this, "WE CHANGED TO: " + tab.getPosition(), Toast.LENGTH_SHORT).show();
+                                                   viewPager.setCurrentItem(tab.getPosition());
 
-               if (tab.getPosition() == 0) {
-                   viewPager.setCurrentItem(tab.getPosition());
-                   updateUIwithRoutes(MainActivity.this);
-                   adapter.refreshFragment(tab.getPosition());
+                                                   if (tab.getPosition() == 0) {
+                                                       updateUIwithRoutes(MainActivity.this);
 
-               } else if (tab.getPosition() == 1) {
-                   //viewPager.setCurrentItem(tab.getPosition());
-                   //adapter.refreshFragment(tab.getPosition());
-                    Resources res = getResources();
-                    String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
-                    mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
-                    mRecyclerView.setAdapter(mAdapter);
+                                                   } else if (tab.getPosition() == 1) {
 
-               } else if (tab.getPosition() == 2) {
-                   //viewPager.setCurrentItem(tab.getPosition());
-                   //adapter.refreshFragment(tab.getPosition());
-                   Resources res = getResources();
-                    String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
-                    mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
-                    mRecyclerView.setAdapter(mAdapter);
-               }
+                                                   } else if (tab.getPosition() == 2) {
+                                                       Resources res = getResources();
+                                                       String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
+                                                       mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
+                                                       mRecyclerView.setAdapter(mAdapter);
+                                                   }
 
-           }
-
+                                               }
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {                }
 
