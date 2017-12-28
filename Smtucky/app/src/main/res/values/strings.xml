@@ -4,8 +4,8 @@
     <string name="logout">Logout</string>
     <string name="action_settings">Settings</string>
 
-    <string name="facebook_app_id">1679392852080937</string>
-    <string name="fb_login_protocol_scheme">fb1679392852080937</string>
+    <string name="facebook_app_id">102975180504714</string>
+    <string name="fb_login_protocol_scheme">fb102975180504714</string>
     <string name="title_activity_route">RouteActivity</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -14,4 +14,10 @@
     <string name="add_alarm">Add Alarm</string>
     <string name="routes">Routes</string>
     <string name="no_permission">This alarm will drop everywhere!</string>
+    <string name="see_routes">See Routes</string>
+
+    <string name="name_route">Route Name:</string>
+    <string name="route_start">Start:</string>
+    <string name="route_end">End:</string>
+
 </resources>

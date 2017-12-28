@@ -2,17 +2,11 @@ package com.example.gonca.smtucky;
 
 import android.app.ActionBar;
 import android.content.Context;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 /**
@@ -27,19 +21,17 @@ public class PageAdapter extends FragmentPagerAdapter {
     FavoritesFragment tab2;
     WarningsFragment tab3;
 
+
     public PageAdapter(FragmentManager fm, int num) {
         super(fm);
         this.Tab_num = num;
 
     }
 
-
     @Override
     public int getCount() {
-        //return POSITION_NONE;
         return Tab_num;
     }
-
 
     @Override
     public Fragment getItem(int position) {
@@ -47,7 +39,6 @@ public class PageAdapter extends FragmentPagerAdapter {
         if (position==0){
             Log.d("MUAHAHAHAH ",""+position);
             tab1 = PageFragment.newInstance(1);
-
             return tab1;
 
         }
@@ -58,7 +49,7 @@ public class PageAdapter extends FragmentPagerAdapter {
         }
         else if(position==2){
             Log.d("RI-ME",""+position);
-            tab3 = WarningsFragment.newInstance(3);
+            tab3 =  WarningsFragment.newInstance(3);
             return tab3;
         }
         return PageFragment.newInstance(1);
@@ -67,15 +58,14 @@ public class PageAdapter extends FragmentPagerAdapter {
     public void refreshFragment(int position) {
         switch (position) {
             case 1:
-                tab1.refreshApi();
+                tab1.updateFragment();
                 break;
             case 2:
-                tab2.refreshApi();
+                tab2.updateFragment();
                 break;
             case 3:
-                tab3.refreshApi();
+                tab3.updateFragment();
                 break;
-
         }
     }
 

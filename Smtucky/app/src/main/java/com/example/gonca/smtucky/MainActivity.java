@@ -1,9 +1,5 @@
 package com.example.gonca.smtucky;
 
-import android.app.ActionBar;
-import android.app.Activity;
-import android.app.Fragment;
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
 
 import android.arch.persistence.room.Room;
@@ -13,8 +9,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -26,11 +20,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
-import com.facebook.login.Login;
 import com.facebook.login.LoginManager;
 
 import org.json.JSONArray;
@@ -39,63 +30,72 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
-public class MainActivity extends android.support.v4.app.FragmentActivity {
+public class MainActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    ViewPager viewPager;
     Routes routes = null;
     ArrayList<String> listOfRoutes = new ArrayList<String>();
 
+    CurrentDataModel current_viewmodel = null;
+    private UserDB user_db;
     private RouteDB route_db;
-
+    private RecyclerItemClickListener listTouchListener;
 
     private class APIReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             //>handle the received broadcast message
+            String success = intent.getStringExtra("success");
 
-            String value1 = intent.getStringExtra("response");
-            Log.d("stuff", value1);
-            try {
-                JSONObject stuff = new JSONObject(value1);
-                JSONArray dataarray = new JSONArray(stuff.get("data").toString());
-
-                Log.v("stuff", "debug");
-
-
-                for (int i = 0; i < dataarray.length(); i++) {
+            Log.v("stuff-startup","Connected to API? :"+success);
+            if(success.equals("yes")) {
+                String value1 = intent.getStringExtra("response");
+                try {
+                    JSONObject stuff = new JSONObject(value1);
+                    JSONArray dataarray = new JSONArray(stuff.get("data").toString());
 
 
-                    Route rt = new Route(dataarray.getJSONObject(i).get("route_official").toString(), dataarray.getJSONObject(i).get("route_name").toString(), Integer.parseInt(dataarray.getJSONObject(i).get("id").toString()));
+                    for (int i = 0; i < dataarray.length(); i++) {
 
 
+                        Route rt = new Route(dataarray.getJSONObject(i).get("route_official").toString(), dataarray.getJSONObject(i).get("route_name").toString(), Integer.parseInt(dataarray.getJSONObject(i).get("id").toString()));
 
-                    ArrayList<Route> listOfRoutes = new ArrayList<>();
+
+                        ArrayList<Route> listOfRoutes = new ArrayList<>();
 
 
-                    JSONArray dataarray2 = (JSONArray) dataarray.getJSONObject(i).get("hours");
-                    ArrayList<String> times = new ArrayList<>();
+                        JSONArray dataarray2 = (JSONArray) dataarray.getJSONObject(i).get("hours");
+                        ArrayList<String> times = new ArrayList<>();
 
 
                         for (int j = 0; j < dataarray2.length(); j++) {
                             times.add(dataarray2.getJSONObject(j).get("time").toString());
                         }
 
-                        //rt.setTimes(times);
+
+                        JSONArray dataarray3 = (JSONArray) dataarray.getJSONObject(i).get("points");
+                        ArrayList<String> stops = new ArrayList<>();
+
+                        for (int j = 0; j < dataarray3.length(); j++) {
+                            stops.add(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(j));
+                        }
+
+
+                        rt.setStops(stops);
+                        rt.setTimes(times);
+
 
                         rt.setFrom(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(0));
-                        rt.setTo(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(((JSONArray) dataarray.getJSONObject(i).get("points")).length() -1));
+                        rt.setTo(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(((JSONArray) dataarray.getJSONObject(i).get("points")).length() - 1));
 
 
                         try {
                             route_db.routeDAO().insert(rt);
-                        }
-                        catch (Exception e){
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                         routes.getRoutes().add(rt);
@@ -103,13 +103,17 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
                     }
 
 
+                    updateUIwithRoutes(context);
+                    Log.v("stuff-startup","Loaded Routes from the API :"+routes.getRoutes().size());
 
-                Log.v("stuff","oi3");
-                updateUI(context);
 
-
-            } catch (JSONException e) {
-                e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            else{
+                    Log.v("stuff", "Can't connect to server");
+                     updateUIwithRoutes(context);
             }
 
 
@@ -121,7 +125,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
         void onClick(View view, int position);
     }
 
-    protected void updateUI(Context context) {
+    protected void updateUIwithRoutes(Context context) {
 
         listOfRoutes = new ArrayList<String>();
         for (int i = 0; i < routes.getRoutes().size(); i++) {
@@ -132,42 +136,120 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
                 listOfRoutes.add(route+" - "+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
             }
             else{
-                listOfRoutes.add(routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
+                listOfRoutes.add(" - "+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
             }
 
 
 
         }
         Toast.makeText(context, "TESTE", Toast.LENGTH_SHORT).show();
-
-
-
         mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.addOnItemTouchListener(
-                new RecyclerItemClickListener(MainActivity.this, new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        Intent i = new Intent(MainActivity.this, RouteActivity.class);
-                        startActivity(i);
+        mRecyclerView.removeOnItemTouchListener(listTouchListener);
+
+        listTouchListener=new RecyclerItemClickListener(MainActivity.this, new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Intent intent = new Intent(MainActivity.this, RouteActivity.class);
+                Bundle b = new Bundle();
+
+                if(position%2==0){
+                    b.putSerializable("routeFrom", routes.getRoutes().get(position));
+                    b.putSerializable("routeTo", routes.getRoutes().get(position+1));
 
 
-                    }
-                })
-        );
+                }
+                else{
+                    b.putSerializable("routeFrom", routes.getRoutes().get(position));
+                    b.putSerializable("routeTo", routes.getRoutes().get(position-1));
 
+                }
+
+                intent.putExtras(b); //Put your id to your next Intent
+                MainActivity.this.startActivity(intent);
+
+
+
+
+            }
+        });
+
+        mRecyclerView.addOnItemTouchListener(listTouchListener);
 
     }
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        route_db = Room.databaseBuilder(getApplicationContext(),RouteDB.class, "routes").allowMainThreadQueries().build();
 
-        ArrayList<Route> routesInDb = (ArrayList<Route>) route_db.routeDAO().getRoutes();
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(toolbar);
+
+
+        Log.v("stuff-startup","Populating ViewModel");
+
+        user_db = Room.databaseBuilder(getApplicationContext(),UserDB.class, "userxgxssxn").allowMainThreadQueries().build();
+
+
+
+        List<User> listOfUsers = user_db.UserDAO().getUsers();
+
+        current_viewmodel = ViewModelProviders.of(this).get(CurrentDataModel.class);
+
+
+        current_viewmodel.setUsers((ArrayList<User>) listOfUsers);
+
+        String currentUserEmail=getIntent().getStringExtra("email");
+
+
+
+        for (int j=0;j<current_viewmodel.getUsers().size();j++){
+            if(current_viewmodel.getUsers().get(j).getMail().equals(currentUserEmail)){
+                current_viewmodel.setUser(current_viewmodel.getUsers().get(j));
+            }
+
+        }
+
+
+
+
+
+
+
+
+        List<Warning> listOfWarnings = user_db.WarningDao().getWarnings();
+
+
+        current_viewmodel.setWarnings((ArrayList<Warning>) listOfWarnings);
+
+
+
+        Log.v("stuff-startup","Currently there are "+current_viewmodel.getUsers().size()+" users in the Room");
+        Log.v("stuff-startup","Currently there are "+current_viewmodel.getWarnings().size()+" warnings in the Room");
+
+
+
+
+
+        route_db = Room.databaseBuilder(getApplicationContext(),RouteDB.class, "routesxgxsassa").allowMainThreadQueries().build();
+
+
+        ArrayList<Route> routesInDb = null;
+
+
+
+
+        routesInDb = (ArrayList<Route>) route_db.routeDAO().getRoutes();
+
+
+
+        Log.v("stuff-startup","Loaded Routes from the Room: " + routesInDb.size());
 
         routes = ViewModelProviders.of(this).get(Routes.class);
-
 
 
         if(routesInDb.size()==0){
@@ -182,222 +264,58 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
             intent.putExtra("routenumber", "6");
 
             startService(intent);//not startActivity!
-            super.onCreate(savedInstanceState);
+        } else {
+            routes.setRoutes(routesInDb);
+        }
 
-            //setContentView(R.layout.activity_main);
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         final ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         //viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
-               // MainActivity.this));
+        // MainActivity.this));
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-        //tabLayout.addTab(tabLayout.newTab().setCustomView(tabView));
-
-        //tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-
         final PageAdapter adapter = new PageAdapter (getSupportFragmentManager(), 3);
         viewPager.setAdapter(adapter);
-        tabLayout.setupWithViewPager(viewPager);
         //viewPager.setOffscreenPageLimit(0);
 
-            //viewPager.setOffscreenPageLimit(0);
-            //android.support.v4.app.Fragment fragment = adapter.getItem(0);
-            //android.support.v4.app.Fragment fragment = adapter.getItem(1);
-            //FragmentManager fragmentManager = getSupportFragmentManager();
-            //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().replace(R.id.container,fragment);
-            //fragmentTransaction.commit();
-
-
+        tabLayout.setupWithViewPager(viewPager);
         //tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+           @Override
+           public void onTabSelected(TabLayout.Tab tab) {
+               Toast.makeText(MainActivity.this, "WE CHANGED TO: " + tab.getPosition(), Toast.LENGTH_SHORT).show();
+
+               if (tab.getPosition() == 0) {
+                   viewPager.setCurrentItem(tab.getPosition());
+                   updateUIwithRoutes(MainActivity.this);
+                   adapter.refreshFragment(tab.getPosition());
+
+               } else if (tab.getPosition() == 1) {
+                   viewPager.setCurrentItem(tab.getPosition());
+                   adapter.refreshFragment(tab.getPosition());
+
+               } else if (tab.getPosition() == 2) {
+                   viewPager.setCurrentItem(tab.getPosition());
+                   adapter.refreshFragment(tab.getPosition());
+               }
+
+           }
             @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                Toast.makeText(MainActivity.this, "WE CHANGED TO: "+tab.getPosition(), Toast.LENGTH_SHORT).show();
-                viewPager.setCurrentItem(tab.getPosition());
-                if(tab.getPosition()==0) {
-
-                    mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
-                    mRecyclerView.setAdapter(mAdapter);
-                    mRecyclerView.addOnItemTouchListener(
-                            new RecyclerItemClickListener(MainActivity.this, new RecyclerItemClickListener.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(View view, int position) {
-                                    Intent i = new Intent(MainActivity.this, RouteActivity.class);
-                                    startActivity(i);
-
-                                }
-                            })
-                    );
-                }
-                else if(tab.getPosition()==1){
-                    //android.support.v4.app.Fragment fragment = adapter.getItem(1);
-                    //FragmentManager fragmentManager = getSupportFragmentManager();
-                    //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().replace(R.id.fragment_container,fragment);
-                    //fragmentTransaction.commit();
-
-
-                    viewPager.setCurrentItem(tab.getPosition());
-                    adapter.refreshFragment(tab.getPosition());
-                    Resources res = getResources();
-                    String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
-                    mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
-                    mRecyclerView.setAdapter(mAdapter);
-                }
-                else if(tab.getPosition()==2){
-                    //android.support.v4.app.Fragment fragment = adapter.getItem(1);
-                    //FragmentManager fragmentManager = getSupportFragmentManager();
-                    //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().replace(R.id.fragment_container,fragment);
-                    //fragmentTransaction.commit();
-
-
-                    viewPager.setCurrentItem(tab.getPosition());
-                    adapter.refreshFragment(tab.getPosition());
-                    Resources res = getResources();
-                    String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
-                    mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
-                    mRecyclerView.setAdapter(mAdapter);
-                }
-
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
+            public void onTabUnselected(TabLayout.Tab tab) {                }
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
 
-            }
-        });
-
-            setupRecycler();
-        }
-        else{
-            routes.setRoutes(routesInDb);
-
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_main);
-
-            // Get the ViewPager and set it's PagerAdapter so that it can display items
-            viewPager = (ViewPager) findViewById(R.id.viewpager);
-            //viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
-            // MainActivity.this));
-            TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-            final PageAdapter adapter = new PageAdapter (getSupportFragmentManager(), 3);
-            viewPager.setAdapter(adapter);
-            tabLayout.setupWithViewPager(viewPager);
-
-            tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-
-            //android.support.v4.app.Fragment fragment = adapter.getItem(0);
-            //android.support.v4.app.Fragment fragment = adapter.getItem(1);
-            //FragmentManager fragmentManager = getSupportFragmentManager();
-            //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().replace(R.id.container,fragment);
-            //fragmentTransaction.commit();
-
-
-
-            //tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-            viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-            tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-                @Override
-                public void onTabSelected(TabLayout.Tab tab) {
-
-                    Toast.makeText(MainActivity.this, "WE CHANGED TO: "+tab.getPosition(), Toast.LENGTH_SHORT).show();
-                    viewPager.setCurrentItem(tab.getPosition());
-                    if(tab.getPosition()==0) {
-
-                        viewPager.setCurrentItem(tab.getPosition());
-                        adapter.refreshFragment(tab.getPosition());
-                        mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
-                        mRecyclerView.setAdapter(mAdapter);
-                        mRecyclerView.addOnItemTouchListener(
-                                new RecyclerItemClickListener(MainActivity.this, new RecyclerItemClickListener.OnItemClickListener() {
-                                    @Override
-                                    public void onItemClick(View view, int position) {
-                                        Intent i = new Intent(MainActivity.this, RouteActivity.class);
-                                        startActivity(i);
-                                    }
-                                })
-                        );
-                        //android.support.v4.app.Fragment fragment = adapter.getItem(0);
-                        //FragmentManager fragmentManager = getSupportFragmentManager();
-                        //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().replace(R.id.fragment_container,fragment);
-                        //fragmentTransaction.commit();
-
-                        viewPager.setCurrentItem(tab.getPosition());
-                        adapter.refreshFragment(tab.getPosition());
-
-
-
-
-                    }
-                    else if(tab.getPosition()==1){
-
-                        //android.support.v4.app.Fragment fragment = adapter.getItem(1);
-                        //FragmentManager fragmentManager = getSupportFragmentManager();
-                        //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().replace(R.id.fragment_container,fragment);
-                        //fragmentTransaction.commit();
-
-
-                        viewPager.setCurrentItem(tab.getPosition());
-                        adapter.refreshFragment(tab.getPosition());
-                        Resources res = getResources();
-                        String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
-                        mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
-                        mRecyclerView.setAdapter(mAdapter);
-
-
-                    }
-                    else if(tab.getPosition()==2){
-
-
-
-
-                        //android.support.v4.app.Fragment fragment = adapter.getItem(2);
-                        //FragmentManager fragmentManager = getSupportFragmentManager();
-                        //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().replace(R.id.fragment_container,fragment);
-                        //fragmentTransaction.commit();
-
-                        viewPager.setCurrentItem(tab.getPosition());
-                        adapter.refreshFragment(tab.getPosition());
-                        //adapter.notifyDataSetChanged();
-                        Resources res = getResources();
-                        String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
-                        mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
-                        mRecyclerView.setAdapter(mAdapter);
-                    }
-
-                }
-
-                @Override
-                public void onTabUnselected(TabLayout.Tab tab) {
-
-                }
-
-                @Override
-                public void onTabReselected(TabLayout.Tab tab) {
-
                 }
             });
-            setupRecycler();
-
-            updateUI(this);
-        }
 
 
 
 
-    }
-
-    void setAdapter(int position) {
-        PageAdapter pagerAdapter = new PageAdapter(getSupportFragmentManager(),3);
-        viewPager.setAdapter(pagerAdapter);
-        // when notify then set manually current position.
-        viewPager.setCurrentItem(position);
-        pagerAdapter.notifyDataSetChanged();
+        setupRecycler();
+        updateUIwithRoutes(this);
     }
 
     private void setupRecycler() {
@@ -422,9 +340,6 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
         return true;
     }
 
-    // Adiciona o adapter que irá anexar os objetos à lista.
-    // Está sendo criado com lista vazia, pois será preenchida posteriormente.
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
@@ -443,6 +358,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
                 intent = new Intent(MainActivity.this, AddAlarmActivity.class);
                 MainActivity.this.startActivity(intent);
                 return true;
+
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.

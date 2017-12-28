@@ -20,11 +20,11 @@ import java.util.Arrays;
 
 public class FavoritesFragment extends Fragment {
     public static final String ARG_PAGE = "ARG_PAGE";
-    private RecyclerView mRecyclerView;
     private int page;
-    private LinearLayoutManager mLinearLayoutManager;
-
+    private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager layoutManager;
+
 
     public static FavoritesFragment newInstance(int page) {
         Bundle args = new Bundle();
@@ -40,25 +40,24 @@ public class FavoritesFragment extends Fragment {
         super.onCreate(savedInstanceState);
         page = 3;
     }
-    public void refreshApi(){
 
+    public void updateFragment(){
+        Resources res = getResources();
+        String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
+        if (getView() != null) {
+            mRecyclerView = getView().findViewById(R.id.my_recycler_view);
+            layoutManager = new LinearLayoutManager(getActivity());
+            mRecyclerView.setLayoutManager(layoutManager);
+            Log.d("replaicing array!!!", "debug");
+            mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
+            mRecyclerView.setAdapter(mAdapter);
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_favorites, container, false);
-        Resources res = getResources();
-        String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
-
-        mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
-        mLinearLayoutManager = new LinearLayoutManager(getActivity());
-        mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(mLinearLayoutManager);
-        mRecyclerView.setAdapter(mAdapter);
         return view;
     }
 }
