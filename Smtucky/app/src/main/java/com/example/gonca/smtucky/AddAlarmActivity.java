@@ -63,15 +63,32 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_alarm);
 
+        // TO DO : Change to alarm model
+        Calendar b = (Calendar) getIntent().getExtras().getSerializable("alarm");
+
+        if(b != null) {
+            setupInfoToEdit(b);
+        } else {
+            ((TextView) findViewById(R.id.textView2)).setText(getActualTime());
+        }
+
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
-
-        ((TextView) findViewById(R.id.textView2)).setText(getActualTime());
 
         setupRoutesSpinner();
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 MY_PERMISSIONS_REQUEST_READ_LOCATION);
+    }
+
+    private void setupInfoToEdit(Calendar alarm) {
+/*
+        Boolean[] daysToDrop = readValuesFromCheckbox();
+        String name = ((TextInputLayout)findViewById(R.id.textInputLayout2)).getEditText().getText().toString();
+        String route = ((Spinner) findViewById(R.id.spinner)).getSelectedItem().toString();
+*/
+        Log.d("alarm", new SimpleDateFormat("hh:mm aa").format(alarm.getTime()));
+        ((TextView) findViewById(R.id.textView2)).setText(new SimpleDateFormat("hh:mm aa").format(alarm.getTime()));
     }
 
     private void setupRoutesSpinner() {
@@ -175,25 +192,29 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
         map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
-    public void addAlarm(View view) {
+    public void addAlarm(View view) throws ParseException{
         Boolean[] daysToDrop = readValuesFromCheckbox();
         String name = ((TextInputLayout)findViewById(R.id.textInputLayout2)).getEditText().getText().toString();
         String route = ((Spinner) findViewById(R.id.spinner)).getSelectedItem().toString();
         String time = ((TextView) findViewById(R.id.textView2)).getText().toString();
 
         Log.d("addAlarm", time);
-/*
+
         Calendar cal = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
-        cal.setTime(sdf.parse("Mon Mar 14 16:02:37 GMT 2011"));// all done
+        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm aa", Locale.getDefault());
+        cal.setTime(sdf.parse(time));
+
+        Log.d("addAlarm", Integer.toString(cal.get(Calendar.HOUR)));
+        Log.d("addAlarm", Integer.toString(cal.get(Calendar.MINUTE)));
+        Log.d("addAlarm", Integer.toString(cal.get(Calendar.AM_PM)));
 
         Intent intent = new Intent(getBaseContext(), AlarmReceiver.class);
+        intent.putExtra("cal", cal);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 getBaseContext(), RQS_1, intent, 0);
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, targetCal.getTimeInMillis(),
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
                 pendingIntent);
-*/
 
     }
 
