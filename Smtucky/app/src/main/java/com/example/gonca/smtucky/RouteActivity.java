@@ -50,9 +50,6 @@ public class RouteActivity extends AppCompatActivity {
         routeTo = (Route) getIntent().getExtras().getSerializable("routeTo");
 
 
-
-
-
         ((TextView) findViewById(R.id.textView7)).setText(routeFrom.getRoute_name());
         ((TextView) findViewById(R.id.textView9)).setText(routeFrom.getFrom());
         ((TextView) findViewById(R.id.textView10)).setText(routeFrom.getTo());
