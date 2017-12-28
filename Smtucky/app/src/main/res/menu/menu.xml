@@ -7,6 +7,11 @@
         android:icon="@drawable/ic_logout"
         app:showAsAction="ifRoom"/>
 
+    <item android:id="@+id/see_route"
+        android:title="@string/see_routes"
+        android:icon="@drawable/ic_see_route"
+        app:showAsAction="ifRoom"/>
+
     <item android:id="@+id/add_alarm"
         android:title="@string/add_alarm"
         android:icon="@drawable/ic_alarm"
