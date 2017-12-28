@@ -1,5 +1,11 @@
 package com.example.gonca.smtucky;
 
+
+import android.app.ActionBar;
+import android.app.Activity;
+import android.app.Fragment;
+import android.arch.lifecycle.LiveData;
+
 import android.arch.lifecycle.ViewModelProviders;
 
 import android.arch.persistence.room.Room;
@@ -9,6 +15,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -32,11 +40,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends android.support.v4.app.FragmentActivity {
 
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    ViewPager viewPager;
     Routes routes = null;
     ArrayList<String> listOfRoutes = new ArrayList<String>();
 
@@ -136,13 +145,16 @@ public class MainActivity extends AppCompatActivity {
                 listOfRoutes.add(route+" - "+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
             }
             else{
-                listOfRoutes.add(" - "+routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
+                listOfRoutes.add(routes.getRoutes().get(i).getFrom()+" → "+routes.getRoutes().get(i).getTo());
             }
 
 
 
         }
         Toast.makeText(context, "TESTE", Toast.LENGTH_SHORT).show();
+
+
+
         mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.removeOnItemTouchListener(listTouchListener);
@@ -175,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mRecyclerView.addOnItemTouchListener(listTouchListener);
+
 
     }
 
@@ -268,6 +281,7 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("routenumber", "6");
 
             startService(intent);//not startActivity!
+
         } else {
             routes.setRoutes(routesInDb);
         }
@@ -278,15 +292,27 @@ public class MainActivity extends AppCompatActivity {
         //viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
         // MainActivity.this));
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        //tabLayout.addTab(tabLayout.newTab().setCustomView(tabView));
+
+        //tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
         final PageAdapter adapter = new PageAdapter (getSupportFragmentManager(), 3);
         viewPager.setAdapter(adapter);
+        tabLayout.setupWithViewPager(viewPager);
         //viewPager.setOffscreenPageLimit(0);
 
-        tabLayout.setupWithViewPager(viewPager);
+            //viewPager.setOffscreenPageLimit(0);
+            //android.support.v4.app.Fragment fragment = adapter.getItem(0);
+            //android.support.v4.app.Fragment fragment = adapter.getItem(1);
+            //FragmentManager fragmentManager = getSupportFragmentManager();
+            //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().replace(R.id.container,fragment);
+            //fragmentTransaction.commit();
+
         //tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+
                                                @Override
                                                public void onTabSelected(TabLayout.Tab tab) {
                                                    Toast.makeText(MainActivity.this, "WE CHANGED TO: " + tab.getPosition(), Toast.LENGTH_SHORT).show();
@@ -310,7 +336,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-
                 }
             });
 
@@ -319,6 +344,14 @@ public class MainActivity extends AppCompatActivity {
 
         setupRecycler();
         updateUIwithRoutes(this);
+    }
+
+    void setAdapter(int position) {
+        PageAdapter pagerAdapter = new PageAdapter(getSupportFragmentManager(),3);
+        viewPager.setAdapter(pagerAdapter);
+        // when notify then set manually current position.
+        viewPager.setCurrentItem(position);
+        pagerAdapter.notifyDataSetChanged();
     }
 
     private void setupRecycler() {
