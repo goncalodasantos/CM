@@ -4,6 +4,8 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.PrimaryKey;
 
+import java.io.Serializable;
+
 import static android.arch.persistence.room.ForeignKey.CASCADE;
 
 /**
@@ -15,16 +17,17 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
         childColumns = "userId",
         onDelete = CASCADE))
 
-public class Warning {
+public class Warning implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
     private int userId;
+    private String name;
     private int hour;
     private int minute;
     private int route;
-    private float lat;
-    private float lon;
+    private double lat = 0;
+    private double lon = 0;
     private int monday=0;
     private int tuesday=0;
     private int wednesday=0;
@@ -53,19 +56,19 @@ public class Warning {
         this.route = route;
     }
 
-    public float getLat() {
+    public double getLat() {
         return lat;
     }
 
-    public void setLat(float lat) {
+    public void setLat(double lat) {
         this.lat = lat;
     }
 
-    public float getLon() {
+    public double getLon() {
         return lon;
     }
 
-    public void setLon(float lon) {
+    public void setLon(double lon) {
         this.lon = lon;
     }
 
@@ -156,5 +159,13 @@ public class Warning {
 
     public void setMinute(int minute) {
         this.minute = minute;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
