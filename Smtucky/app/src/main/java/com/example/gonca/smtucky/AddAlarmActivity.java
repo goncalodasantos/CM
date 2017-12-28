@@ -80,7 +80,7 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
-        
+
         setupRoutesSpinner();
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
@@ -98,7 +98,7 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
     }
 
     private void setupRoutesSpinner() {
-        RouteDB route_db = Room.databaseBuilder(getApplicationContext(), RouteDB.class, "routesxgxsassa").allowMainThreadQueries().build();
+        RouteDB route_db = Room.databaseBuilder(getApplicationContext(), RouteDB.class, "routesxgxsassaaa").allowMainThreadQueries().build();
         ArrayList<Route> routesInDb = null;
         routesInDb = (ArrayList<Route>) route_db.routeDAO().getRoutes();
         routes = ViewModelProviders.of(this).get(Routes.class);

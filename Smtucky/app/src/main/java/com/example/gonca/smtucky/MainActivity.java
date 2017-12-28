@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
 
         Log.v("stuff-startup","Populating ViewModel");
 
-        user_db = Room.databaseBuilder(getApplicationContext(),UserDB.class, "userxgxssxn").allowMainThreadQueries().build();
+        user_db = Room.databaseBuilder(getApplicationContext(),UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
 
 
 
@@ -226,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        route_db = Room.databaseBuilder(getApplicationContext(),RouteDB.class, "routesxgxsassa").allowMainThreadQueries().build();
+        route_db = Room.databaseBuilder(getApplicationContext(),RouteDB.class, "routesxgxsassaaa").allowMainThreadQueries().build();
 
 
         ArrayList<Route> routesInDb = null;

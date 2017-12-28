@@ -88,7 +88,7 @@ public class LoginActivity extends AppCompatActivity {
                                 Log.v("stuff-login",email);
 
 
-                                UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxn").allowMainThreadQueries().build();
+                                UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
 
 
 
@@ -168,7 +168,7 @@ public class LoginActivity extends AppCompatActivity {
                                                 Log.v("stuff-login",email);
 
 
-                                                UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxn").allowMainThreadQueries().build();
+                                                UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
 
 
 
