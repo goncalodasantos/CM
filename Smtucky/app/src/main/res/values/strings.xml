@@ -14,4 +14,10 @@
     <string name="add_alarm">Add Alarm</string>
     <string name="routes">Routes</string>
     <string name="no_permission">This alarm will drop everywhere!</string>
+    <string name="see_routes">See Routes</string>
+
+    <string name="name_route">Route Name:</string>
+    <string name="route_start">Start:</string>
+    <string name="route_end">End:</string>
+
 </resources>
