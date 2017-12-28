@@ -15,8 +15,12 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+
+import org.json.JSONObject;
 
 /**
  * Created by filipemendes on 26/12/17.
@@ -31,11 +35,16 @@ public class LoginActivity extends Activity {
         /* remove action bar */
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
+
+
         /* remove status bar */
         //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
         //        WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         super.onCreate(savedInstanceState);
+        FacebookSdk.sdkInitialize(getApplicationContext());
+
+
         setContentView(R.layout.welcome_login);
 
         Button yourButton = (Button) findViewById(R.id.button_login);
@@ -48,10 +57,14 @@ public class LoginActivity extends Activity {
 
 
         if(isLoggedIn()) {
-            Log.v("stuff:","ola");
+
+
+
+
+            Log.v("stuff:","Going to main activity");
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
         } else {
-            Log.v("stuff:","ola2");
+            Log.v("stuff:","Needing authetication");
 
             callbackManager = CallbackManager.Factory.create();
 
@@ -59,21 +72,39 @@ public class LoginActivity extends Activity {
                     new FacebookCallback<LoginResult>() {
                         @Override
                         public void onSuccess(LoginResult loginResult) {
+
+
+                            GraphRequest.newMeRequest(
+                                    loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
+                                        @Override
+                                        public void onCompleted(JSONObject me, GraphResponse response) {
+                                            if (response.getError() != null) {
+                                                // handle error
+                                            } else {
+                                                // get email and id of the user
+                                                String email = me.optString("email");
+                                                String id = me.optString("id");
+                                                Log.v("stuff-login",email);
+                                            }
+                                        }
+                                    }).executeAsync();
+
+
                             // App code
-                            Log.d("Login", "Success");
+                            Log.d("stuff-Login", "Success");
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         }
 
                         @Override
                         public void onCancel() {
                             // App code
-                            Log.d("Login", "Cancel");
+                            Log.d("stuff-Login", "Cancel");
                         }
 
                         @Override
                         public void onError(FacebookException exception) {
                             // App code
-                            Log.d("Login", "Error");
+                            Log.d("stuff-Login", "Error");
                         }
                     });
         }

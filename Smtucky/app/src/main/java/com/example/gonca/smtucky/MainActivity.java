@@ -1,8 +1,5 @@
 package com.example.gonca.smtucky;
 
-import android.app.ActionBar;
-import android.app.Activity;
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
 
 import android.arch.persistence.room.Room;
@@ -18,16 +15,12 @@ import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
-import com.facebook.login.Login;
 import com.facebook.login.LoginManager;
 
 import org.json.JSONArray;
@@ -36,7 +29,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -47,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     Routes routes = null;
     ArrayList<String> listOfRoutes = new ArrayList<String>();
 
+    CurrentDataModel current_viewmodel = null;
+    private UserDB user_db;
     private RouteDB route_db;
 
 
@@ -54,32 +48,32 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             //>handle the received broadcast message
+            String success = intent.getStringExtra("success");
 
-            String value1 = intent.getStringExtra("response");
-            Log.d("stuff", value1);
-            try {
-                JSONObject stuff = new JSONObject(value1);
-                JSONArray dataarray = new JSONArray(stuff.get("data").toString());
-
-
-                for (int i = 0; i < dataarray.length(); i++) {
-
-
-                    Route rt = new Route(dataarray.getJSONObject(i).get("route_official").toString(), dataarray.getJSONObject(i).get("route_name").toString(), Integer.parseInt(dataarray.getJSONObject(i).get("id").toString()));
+            Log.v("stuff-startup","Connected to API? :"+success);
+            if(success.equals("yes")) {
+                String value1 = intent.getStringExtra("response");
+                try {
+                    JSONObject stuff = new JSONObject(value1);
+                    JSONArray dataarray = new JSONArray(stuff.get("data").toString());
 
 
-                    ArrayList<Route> listOfRoutes = new ArrayList<>();
+                    for (int i = 0; i < dataarray.length(); i++) {
 
 
-                    JSONArray dataarray2 = (JSONArray) dataarray.getJSONObject(i).get("hours");
-                    ArrayList<String> times = new ArrayList<>();
+                        Route rt = new Route(dataarray.getJSONObject(i).get("route_official").toString(), dataarray.getJSONObject(i).get("route_name").toString(), Integer.parseInt(dataarray.getJSONObject(i).get("id").toString()));
+
+
+                        ArrayList<Route> listOfRoutes = new ArrayList<>();
+
+
+                        JSONArray dataarray2 = (JSONArray) dataarray.getJSONObject(i).get("hours");
+                        ArrayList<String> times = new ArrayList<>();
 
 
                         for (int j = 0; j < dataarray2.length(); j++) {
                             times.add(dataarray2.getJSONObject(j).get("time").toString());
                         }
-
-
 
 
                         JSONArray dataarray3 = (JSONArray) dataarray.getJSONObject(i).get("points");
@@ -90,20 +84,17 @@ public class MainActivity extends AppCompatActivity {
                         }
 
 
-
-
                         rt.setStops(stops);
                         rt.setTimes(times);
 
 
                         rt.setFrom(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(0));
-                        rt.setTo(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(((JSONArray) dataarray.getJSONObject(i).get("points")).length() -1));
+                        rt.setTo(((JSONArray) dataarray.getJSONObject(i).get("points")).getString(((JSONArray) dataarray.getJSONObject(i).get("points")).length() - 1));
 
 
                         try {
                             route_db.routeDAO().insert(rt);
-                        }
-                        catch (Exception e){
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                         routes.getRoutes().add(rt);
@@ -111,13 +102,17 @@ public class MainActivity extends AppCompatActivity {
                     }
 
 
+                    updateUI(context);
+                    Log.v("stuff-startup","Loaded Routes from the API :"+routes.getRoutes().size());
 
 
-                updateUI(context);
-
-
-            } catch (JSONException e) {
-                e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            else{
+                    Log.v("stuff", "Can't connect to server");
+                    updateUI(context);
             }
 
 
@@ -166,12 +161,56 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        route_db = Room.databaseBuilder(getApplicationContext(),RouteDB.class, "routesxg").allowMainThreadQueries().build();
+
+        user_db = Room.databaseBuilder(getApplicationContext(),UserDB.class, "userxgxssx").allowMainThreadQueries().build();
+
+
+
+
+
+
+
+        Log.v("stuff-startup","Populating ViewModel");
+
+
+        current_viewmodel = ViewModelProviders.of(this).get(CurrentDataModel.class);
+
+
+
+
+        List<Warning> listOfWarnings = user_db.WarningDao().getWarnings();
+
+        List<User> listOfUsers = user_db.UserDAO().getUsers();
+
+        current_viewmodel.setUsers((ArrayList<User>) listOfUsers);
+        current_viewmodel.setWarnings((ArrayList<Warning>) listOfWarnings);
+
+
+
+        Log.v("stuff-startup","Currently there are "+current_viewmodel.getUsers().size()+" users in the Room");
+        Log.v("stuff-startup","Currently there are "+current_viewmodel.getWarnings().size()+" warnings in the Room");
+
+
+
+
+
+        route_db = Room.databaseBuilder(getApplicationContext(),RouteDB.class, "routesxgxsassa").allowMainThreadQueries().build();
 
         ArrayList<Route> routesInDb = null;
+
+        Log.v("stuff-startup","Loaded Routes from the Room");
+
+
         routesInDb = (ArrayList<Route>) route_db.routeDAO().getRoutes();
 
+
+
+        Log.v("stuff-startup","Loaded Routes from the Room" + routesInDb.size());
+
         routes = ViewModelProviders.of(this).get(Routes.class);
+
+
+
 
 
 
