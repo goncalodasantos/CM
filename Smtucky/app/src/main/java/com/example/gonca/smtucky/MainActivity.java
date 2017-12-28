@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        user_db = Room.databaseBuilder(getApplicationContext(),UserDB.class, "userxgxssx").allowMainThreadQueries().build();
+        user_db = Room.databaseBuilder(getApplicationContext(),UserDB.class, "userxgxssxs").allowMainThreadQueries().build();
 
 
 

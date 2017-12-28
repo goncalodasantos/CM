@@ -107,4 +107,13 @@ public class Route implements Serializable{
         this.stops = stops;
     }
 
+    @Override
+    public String toString() {
+        if(getRoute_name().equals("Desconhecido")) {
+            return getFrom() + " - " + getTo();
+        } else {
+            return getRoute_name() + " : " + getFrom() + " - " + getTo();
+        }
+    }
+
 }

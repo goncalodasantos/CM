@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
@@ -33,54 +34,57 @@ public class AlarmReceiver extends BroadcastReceiver {
     private Location location;
     private final int MY_PERMISSIONS_REQUEST_READ_LOCATION = 1;
     private final float RAZOABLE_DISTANCE_TO_DROP = 2000;
-
+    private Warning w;
     @Override
     public void onReceive(Context k1, Intent k2) {
 
         final Context a = k1;
         final Intent b = k2;
 
-        // TODO Auto-generated method stub
-        Toast.makeText(k1, "FDs! " + ((Calendar) k2.getExtras().getSerializable("cal")).get(Calendar.MINUTE), Toast.LENGTH_LONG).show();
+        w = (Warning) ((Bundle)k2.getExtras().getBundle("bundle")).getSerializable("alert");
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(k1);
-        try {
-            mFusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            // Got last known location. In some rare situations this can be null.
-                            if (location != null && compareLocation(a, location, ((Location) b.getExtras().getSerializable("location")))) {
-                                // Logic to handle location object
-                                sendNotification(a, b);
+        if(w != null) {
+
+            Toast.makeText(k1, w.getLat() + " " + w.getLon(), Toast.LENGTH_LONG).show();
+            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(k1);
+            try {
+                mFusedLocationClient.getLastLocation()
+                        .addOnSuccessListener(new OnSuccessListener<Location>() {
+                            @Override
+                            public void onSuccess(Location location) {
+                                // Got last known location. In some rare situations this can be null.
+
+                                if (location != null && compareLocation(a, location, w.getLat(), w.getLon())) {
+                                    // Logic to handle location object
+                                    sendNotification(a, b);
+                                }
+
                             }
-                        }
-                    });
+                        });
 
-        } catch (SecurityException e) {
-            Toast.makeText(getApplicationContext(), "Unable to get your current location", Toast.LENGTH_SHORT);
+            } catch (SecurityException e) {
+                Toast.makeText(a, "Unable to get your current location", Toast.LENGTH_SHORT);
+            }
         }
     }
 
-    private Boolean compareLocation(Context k1, Location l1, Location l2) {
+    private Boolean compareLocation(Context k1, Location l1, double lat, double lon) {
 
-        if(l2 != null) {
-            double earthRadius = 6371000; //meters
-            double dLat = Math.toRadians(l2.getLatitude()-l1.getLatitude());
-            double dLng = Math.toRadians(l2.getLongitude()-l2.getLongitude());
-            double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                    Math.cos(Math.toRadians(l1.getLatitude())) * Math.cos(Math.toRadians(l2.getLatitude())) *
-                            Math.sin(dLng/2) * Math.sin(dLng/2);
-            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            float dist = (float) (earthRadius * c);
+        double earthRadius = 6371000; //meters
+        double dLat = Math.toRadians(lat-l1.getLatitude());
+        double dLng = Math.toRadians(lon-l1.getLongitude());
 
-            if(dist <= RAZOABLE_DISTANCE_TO_DROP) {
-                return true;
-            } else {
-                return false;
-            }
+        double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(Math.toRadians(l1.getLatitude())) * Math.cos(Math.toRadians(lat)) *
+                        Math.sin(dLng/2) * Math.sin(dLng/2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        float dist = (float) (earthRadius * c);
+
+        if(dist <= RAZOABLE_DISTANCE_TO_DROP) {
+            return true;
+        } else {
+            return false;
         }
-        return true;
     }
 
     private void sendNotification(Context k1, Intent k2) {
@@ -91,7 +95,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                         .setContentText("Pick up your bus!");
         // Creates an explicit intent for an Activity in your app
         Intent resultIntent = new Intent(k1, AddAlarmActivity.class);
-        resultIntent.putExtra("alarm", ((Calendar) k2.getExtras().getSerializable("cal")));
+        resultIntent.putExtra("alarm", ((Warning) k2.getExtras().getSerializable("alarm")));
         // The stack builder object will contain an artificial back stack for the
         // started Activity.
         // This ensures that navigating backward from the Activity leads out of

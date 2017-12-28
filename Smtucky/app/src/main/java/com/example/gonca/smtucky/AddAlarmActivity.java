@@ -4,6 +4,9 @@ import android.Manifest;
 import android.app.AlarmManager;
 import android.app.DialogFragment;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
+import android.arch.lifecycle.ViewModelProviders;
+import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -41,9 +44,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -57,11 +62,15 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
     private Location location;
     private final int MY_PERMISSIONS_REQUEST_READ_LOCATION = 1;
     final static int RQS_1 = 1;
+    private Routes routes = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_alarm);
+
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
 
         // TO DO : Change to alarm model
         Calendar b = (Calendar) getIntent().getExtras().getSerializable("alarm");
@@ -71,9 +80,6 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
         } else {
             ((TextView) findViewById(R.id.textView2)).setText(getActualTime());
         }
-
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(myToolbar);
 
         setupRoutesSpinner();
         ActivityCompat.requestPermissions(this,
@@ -92,11 +98,17 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
     }
 
     private void setupRoutesSpinner() {
-        // TODO: values to text showed up
+        RouteDB route_db = Room.databaseBuilder(getApplicationContext(), RouteDB.class, "routesxgxsassa").allowMainThreadQueries().build();
+        ArrayList<Route> routesInDb = null;
+        routesInDb = (ArrayList<Route>) route_db.routeDAO().getRoutes();
+        routes = ViewModelProviders.of(this).get(Routes.class);
+        routes.setRoutes(routesInDb);
+
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
+        Log.d("routes", Integer.toString(routes.getRoutes().size()));
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.mock_data_for_recycler_view, android.R.layout.simple_spinner_item);
+        ArrayAdapter<Route> adapter = new ArrayAdapter(this,
+                android.R.layout.simple_spinner_item, routes.getRoutes());
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
@@ -192,30 +204,98 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
         map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
-    public void addAlarm(View view) throws ParseException{
-        Boolean[] daysToDrop = readValuesFromCheckbox();
-        String name = ((TextInputLayout)findViewById(R.id.textInputLayout2)).getEditText().getText().toString();
-        String route = ((Spinner) findViewById(R.id.spinner)).getSelectedItem().toString();
-        String time = ((TextView) findViewById(R.id.textView2)).getText().toString();
+    public void addAlarm(View view) {
 
-        Log.d("addAlarm", time);
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("It's loading....");
+        progressDialog.setTitle("Adding warning");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setIndeterminate(true);
+        progressDialog.show();
 
-        Calendar cal = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm aa", Locale.getDefault());
-        cal.setTime(sdf.parse(time));
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run(){
+                Warning toAdd = new Warning();
 
-        Log.d("addAlarm", Integer.toString(cal.get(Calendar.HOUR)));
-        Log.d("addAlarm", Integer.toString(cal.get(Calendar.MINUTE)));
-        Log.d("addAlarm", Integer.toString(cal.get(Calendar.AM_PM)));
+                Boolean[] daysToDrop = readValuesFromCheckbox();
 
-        Intent intent = new Intent(getBaseContext(), AlarmReceiver.class);
-        intent.putExtra("cal", cal);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                getBaseContext(), RQS_1, intent, 0);
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
-                pendingIntent);
+                for(int i = 0; i < daysToDrop.length; i++) {
+                    switch(i) {
+                        case 0:
+                            toAdd.setMonday(daysToDrop[i] ? 1 : 0);
+                            break;
+                        case 1:
+                            toAdd.setTuesday(daysToDrop[i] ? 1 : 0);
+                            break;
+                        case 2:
+                            toAdd.setWednesday(daysToDrop[i] ? 1 : 0);
+                            break;
+                        case 3:
+                            toAdd.setThursday(daysToDrop[i] ? 1 : 0);
+                            break;
+                        case 4:
+                            toAdd.setFriday(daysToDrop[i] ? 1 : 0);
+                            break;
+                        case 5:
+                            toAdd.setSaturday(daysToDrop[i] ? 1 : 0);
+                            break;
+                        case 6:
+                            toAdd.setSunday(daysToDrop[i] ? 1 : 0);
+                            break;
+                    }
+                }
 
+                toAdd.setName(((TextInputLayout)findViewById(R.id.textInputLayout2)).getEditText().getText().toString());
+                toAdd.setRoute(((Route)((Spinner) findViewById(R.id.spinner)).getSelectedItem()).getId());
+                // TODO
+                toAdd.setUserId(1);
+                String time = ((TextView) findViewById(R.id.textView2)).getText().toString();
+                Calendar cal = Calendar.getInstance();
+                SimpleDateFormat sdf = new SimpleDateFormat("hh:mm aa", Locale.getDefault());
+
+                try {
+                    cal.setTime(sdf.parse(time));
+                } catch (ParseException e) {
+
+                }
+
+                if(cal.get(Calendar.AM_PM) == 1) {
+                    toAdd.setHour(cal.get(Calendar.HOUR) + 12);
+                } else {
+                    toAdd.setMinute(cal.get(Calendar.MINUTE));
+                }
+
+                toAdd.setLat(location.getLatitude());
+                toAdd.setLon(location.getLongitude());
+
+        /*
+                UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxs").allowMainThreadQueries().build();
+
+                User u = new User();
+                u.setMail("oi@gmi");
+
+                user_db.UserDAO().insert(u);
+                user_db.close();
+                user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxs").allowMainThreadQueries().build();
+                user_db.WarningDao().insert(toAdd);
+        */
+
+                Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("alarm", toAdd);
+                intent.putExtra("bundle", bundle);
+
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                        getBaseContext(), RQS_1, intent, 0);
+                AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
+                        pendingIntent);
+
+                progressDialog.dismiss();
+                AddAlarmActivity.super.onBackPressed();
+            }
+        });
     }
 
     public Boolean[] readValuesFromCheckbox() {
