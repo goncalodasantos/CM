@@ -80,16 +80,7 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
-
-        // TO DO : Change to alarm model
-        Calendar b = (Calendar) getIntent().getExtras().getSerializable("alarm");
-
-        if(b != null) {
-            setupInfoToEdit(b);
-        } else {
-            ((TextView) findViewById(R.id.textView2)).setText(getActualTime());
-        }
-
+        
         setupRoutesSpinner();
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},

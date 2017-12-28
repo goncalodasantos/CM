@@ -150,7 +150,6 @@ public class RouteActivity extends AppCompatActivity {
                 RouteActivity.this.startActivity(intent);
                 return true;
 
-
             case R.id.add_alarm:
                 intent = new Intent(RouteActivity.this, AddAlarmActivity.class);
                 RouteActivity.this.startActivity(intent);
