@@ -186,9 +186,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(toolbar);
-
 
         Log.v("stuff-startup","Populating ViewModel");
 
@@ -213,11 +210,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
-
-
-
-
-
 
 
 
@@ -248,6 +240,14 @@ public class MainActivity extends AppCompatActivity {
 
 
         Log.v("stuff-startup","Loaded Routes from the Room: " + routesInDb.size());
+
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(toolbar);
+
+
+        Log.v("stuff-startup","Loaded Routes from the Room: " + routesInDb.size());
+
 
         routes = ViewModelProviders.of(this).get(Routes.class);
 
