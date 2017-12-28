@@ -2,7 +2,6 @@ package com.example.gonca.smtucky;
 
 import android.app.ActionBar;
 import android.content.Context;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -17,10 +16,7 @@ public class PageAdapter extends FragmentPagerAdapter {
     final int Tab_num;
     private String Titles[] = new String[] { "Autocarros", "Avisos", "Favoritos" };
     private Context context;
-    PageFragment tab1;
-    FavoritesFragment tab2;
-    WarningsFragment tab3;
-
+    ActionBar.Tab Tab1 = null, Tab2 = null, Tab3 = null;
 
     public PageAdapter(FragmentManager fm, int num) {
         super(fm);
@@ -38,35 +34,18 @@ public class PageAdapter extends FragmentPagerAdapter {
 
         if (position==0){
             Log.d("MUAHAHAHAH ",""+position);
-            tab1 = PageFragment.newInstance(1);
-            return tab1;
+            return PageFragment.newInstance(1);
 
         }
         else if(position ==1){
             Log.d("LOL ",""+position);
-            tab2 = FavoritesFragment.newInstance(2);
-            return tab2;
+            return FavoritesFragment.newInstance(2);
         }
         else if(position==2){
             Log.d("RI-ME",""+position);
-            tab3 =  WarningsFragment.newInstance(3);
-            return tab3;
+            return WarningsFragment.newInstance(3);
         }
         return PageFragment.newInstance(1);
-    }
-
-    public void refreshFragment(int position) {
-        switch (position) {
-            case 1:
-                tab1.updateFragment();
-                break;
-            case 2:
-                tab2.updateFragment();
-                break;
-            case 3:
-                tab3.updateFragment();
-                break;
-        }
     }
 
     @Override
