@@ -5,7 +5,14 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 /**
@@ -16,7 +23,9 @@ public class PageAdapter extends FragmentPagerAdapter {
     final int Tab_num;
     private String Titles[] = new String[] { "Autocarros", "Avisos", "Favoritos" };
     private Context context;
-    ActionBar.Tab Tab1 = null, Tab2 = null, Tab3 = null;
+    PageFragment tab1;
+    FavoritesFragment tab2;
+    WarningsFragment tab3;
 
     public PageAdapter(FragmentManager fm, int num) {
         super(fm);
@@ -24,28 +33,50 @@ public class PageAdapter extends FragmentPagerAdapter {
 
     }
 
+
     @Override
     public int getCount() {
+        //return POSITION_NONE;
         return Tab_num;
     }
+
 
     @Override
     public Fragment getItem(int position) {
 
         if (position==0){
             Log.d("MUAHAHAHAH ",""+position);
-            return PageFragment.newInstance(1);
+            tab1 = PageFragment.newInstance(1);
+
+            return tab1;
 
         }
         else if(position ==1){
             Log.d("LOL ",""+position);
-            return FavoritesFragment.newInstance(2);
+            tab2 = FavoritesFragment.newInstance(2);
+            return tab2;
         }
         else if(position==2){
             Log.d("RI-ME",""+position);
-            return WarningsFragment.newInstance(3);
+            tab3 = WarningsFragment.newInstance(3);
+            return tab3;
         }
         return PageFragment.newInstance(1);
+    }
+
+    public void refreshFragment(int position) {
+        switch (position) {
+            case 1:
+                tab1.refreshApi();
+                break;
+            case 2:
+                tab2.refreshApi();
+                break;
+            case 3:
+                tab3.refreshApi();
+                break;
+
+        }
     }
 
     @Override
