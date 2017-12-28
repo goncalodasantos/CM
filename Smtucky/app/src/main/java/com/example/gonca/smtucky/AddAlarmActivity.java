@@ -1,7 +1,9 @@
 package com.example.gonca.smtucky;
 
 import android.Manifest;
+import android.app.AlarmManager;
 import android.app.DialogFragment;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -42,6 +44,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by filipemendes on 26/12/17.
@@ -53,6 +56,7 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
     private FusedLocationProviderClient mFusedLocationClient;
     private Location location;
     private final int MY_PERMISSIONS_REQUEST_READ_LOCATION = 1;
+    final static int RQS_1 = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -176,6 +180,21 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
         String name = ((TextInputLayout)findViewById(R.id.textInputLayout2)).getEditText().getText().toString();
         String route = ((Spinner) findViewById(R.id.spinner)).getSelectedItem().toString();
         String time = ((TextView) findViewById(R.id.textView2)).getText().toString();
+
+        Log.d("addAlarm", time);
+/*
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+        cal.setTime(sdf.parse("Mon Mar 14 16:02:37 GMT 2011"));// all done
+
+        Intent intent = new Intent(getBaseContext(), AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                getBaseContext(), RQS_1, intent, 0);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, targetCal.getTimeInMillis(),
+                pendingIntent);
+*/
+
     }
 
     public Boolean[] readValuesFromCheckbox() {
