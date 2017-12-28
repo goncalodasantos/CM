@@ -185,9 +185,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(toolbar);
-
 
         Log.v("stuff-startup","Populating ViewModel");
 
@@ -212,11 +209,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
-
-
-
-
-
 
 
 
@@ -250,63 +242,6 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
-
-
-        Log.v("stuff-startup","Populating ViewModel");
-
-        user_db = Room.databaseBuilder(getApplicationContext(),UserDB.class, "userxgxssxn").allowMainThreadQueries().build();
-
-
-
-        List<User> listOfUsers = user_db.UserDAO().getUsers();
-
-        current_viewmodel = ViewModelProviders.of(this).get(CurrentDataModel.class);
-
-
-        current_viewmodel.setUsers((ArrayList<User>) listOfUsers);
-
-        String currentUserEmail=getIntent().getStringExtra("email");
-
-
-
-        for (int j=0;j<current_viewmodel.getUsers().size();j++){
-            if(current_viewmodel.getUsers().get(j).getMail().equals(currentUserEmail)){
-                current_viewmodel.setUser(current_viewmodel.getUsers().get(j));
-            }
-
-        }
-
-
-
-
-
-
-
-
-        List<Warning> listOfWarnings = user_db.WarningDao().getWarnings();
-
-
-        current_viewmodel.setWarnings((ArrayList<Warning>) listOfWarnings);
-
-
-
-        Log.v("stuff-startup","Currently there are "+current_viewmodel.getUsers().size()+" users in the Room");
-        Log.v("stuff-startup","Currently there are "+current_viewmodel.getWarnings().size()+" warnings in the Room");
-
-
-
-
-
-        route_db = Room.databaseBuilder(getApplicationContext(),RouteDB.class, "routesxgxsassa").allowMainThreadQueries().build();
-
-
-        ArrayList<Route> routesInDb = null;
-
-
-
-
-        routesInDb = (ArrayList<Route>) route_db.routeDAO().getRoutes();
-
 
 
         Log.v("stuff-startup","Loaded Routes from the Room: " + routesInDb.size());
