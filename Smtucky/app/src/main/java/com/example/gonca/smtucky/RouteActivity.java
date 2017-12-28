@@ -1,6 +1,7 @@
 package com.example.gonca.smtucky;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.arch.persistence.room.Room;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -30,12 +32,16 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class RouteActivity extends AppCompatActivity {
 
     private Route routeFrom, routeTo;
     private RecyclerView mRecyclerView1, mRecyclerView2;
     private RecyclerView.Adapter mAdapter1, mAdapter2;
+    private String currentUserEmail;
+    private User u = null;
+
     private int state = 0;
 
     @Override
@@ -44,15 +50,30 @@ public class RouteActivity extends AppCompatActivity {
         setContentView(R.layout.activity_route);
 
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar_details);
         setSupportActionBar(toolbar);
         routeFrom = (Route) getIntent().getExtras().getSerializable("routeFrom");
         routeTo = (Route) getIntent().getExtras().getSerializable("routeTo");
 
+        Log.v("stuff-debugging",routeFrom.toString());
 
         ((TextView) findViewById(R.id.textView7)).setText(routeFrom.getRoute_name());
         ((TextView) findViewById(R.id.textView9)).setText(routeFrom.getFrom());
         ((TextView) findViewById(R.id.textView10)).setText(routeFrom.getTo());
+
+
+        UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
+        List<User> listOfUsers = user_db.UserDAO().getUsers();
+
+        currentUserEmail=getIntent().getStringExtra("email");
+        Toast.makeText(this, "email"+currentUserEmail, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "SIZE: "+listOfUsers.size(), Toast.LENGTH_SHORT).show();
+        for (int j=0;j<listOfUsers.size();j++){
+            if(listOfUsers.get(j).getMail().equals(currentUserEmail)){
+                u = listOfUsers.get(j);
+            }
+        }
+
 
         setupRecyclers();
     }
@@ -133,7 +154,7 @@ public class RouteActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu, menu);
+        getMenuInflater().inflate(R.menu.menu_details, menu);
         return true;
     }
 
@@ -151,8 +172,47 @@ public class RouteActivity extends AppCompatActivity {
                 return true;
 
             case R.id.add_alarm:
+                //intent.putExtra("email", current)
                 intent = new Intent(RouteActivity.this, AddAlarmActivity.class);
                 RouteActivity.this.startActivity(intent);
+                return true;
+
+            case R.id.favorite_route:
+                if(u!=null) {
+                    ArrayList<String> favorites = u.getFavorites();
+                    Toast.makeText(this, "SIze Favoritos inicial "+favorites.size(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "ID FAVORITO "+routeFrom.getId(), Toast.LENGTH_SHORT).show();
+                    favorites.add("" + routeFrom.getId());
+                    Toast.makeText(this, "SIze Favoritos depois de adicionar "+favorites.size(), Toast.LENGTH_SHORT).show();
+                    u.setFavorites(favorites);
+
+                    UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
+                    Toast.makeText(this, "Users "+user_db.UserDAO().getUsers().size(), Toast.LENGTH_SHORT).show();
+
+                    user_db.UserDAO().update(u);
+                }
+                //intent = new Intent(RouteActivity.this, AddAlarmActivity.class);
+                //RouteActivity.this.startActivity(intent);
+                return true;
+
+            case R.id.remove_favorite_route:
+                if(u!=null) {
+                    ArrayList<String> favorites = u.getFavorites();
+                    String index = ""+routeFrom.getId();
+                    for(int i=0;i<favorites.size();i++){
+                        if(favorites.get(i).equals(index)){
+                            favorites.remove(i);
+                        }
+                    }
+                    u.setFavorites(favorites);
+
+                    UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
+                    Toast.makeText(this, "Users "+user_db.UserDAO().getUsers().size(), Toast.LENGTH_SHORT).show();
+
+                    user_db.UserDAO().update(u);
+                }
+                //intent = new Intent(RouteActivity.this, AddAlarmActivity.class);
+                //RouteActivity.this.startActivity(intent);
                 return true;
             default:
                 // If we got here, the user's action was not recognized.

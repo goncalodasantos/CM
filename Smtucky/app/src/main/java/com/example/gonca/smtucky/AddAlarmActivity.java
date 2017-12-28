@@ -63,6 +63,8 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
     private final int MY_PERMISSIONS_REQUEST_READ_LOCATION = 1;
     final static int RQS_1 = 1;
     private Routes routes = null;
+    private String currentUserEmail;
+    CurrentDataModel current_viewmodel = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -269,17 +271,27 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
                 toAdd.setLat(location.getLatitude());
                 toAdd.setLon(location.getLongitude());
 
-        /*
+
                 UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxs").allowMainThreadQueries().build();
 
-                User u = new User();
-                u.setMail("oi@gmi");
+                List<User> listOfUsers = user_db.UserDAO().getUsers();
 
-                user_db.UserDAO().insert(u);
-                user_db.close();
+
+                currentUserEmail=getIntent().getStringExtra("email");
+                User u = null;
+                for (int j=0;j<listOfUsers.size();j++){
+                    if(listOfUsers.get(j).getMail().equals(currentUserEmail)){
+                        u = listOfUsers.get(j);
+
+                    }
+
+                }
+                toAdd.setUserId(u.getId());
+                
                 user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxs").allowMainThreadQueries().build();
                 user_db.WarningDao().insert(toAdd);
-        */
+        
+
 
                 Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
                 Bundle bundle = new Bundle();

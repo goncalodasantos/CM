@@ -32,6 +32,10 @@ public class User {
     }
 
     public ArrayList<String> getFavorites() {
+        if(favorites==null){
+            favorites=new ArrayList<String>();
+        }
+
         return favorites;
     }
 
