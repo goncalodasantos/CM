@@ -5,6 +5,7 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -12,7 +13,7 @@ import java.util.ArrayList;
  */
 
 @Entity(tableName = "route")
-public class Route {
+public class Route implements Serializable{
 
     @PrimaryKey
     private int id;
@@ -29,6 +30,8 @@ public class Route {
 
     private String to;
 
+
+    private ArrayList<String> stops;
 
     private ArrayList<String> times;
 
@@ -93,6 +96,15 @@ public class Route {
 
     public void setTimes(ArrayList<String> times) {
         this.times = times;
+    }
+
+
+    public ArrayList<String> getStops() {
+        return stops;
+    }
+
+    public void setStops(ArrayList<String> stops) {
+        this.stops = stops;
     }
 
 }
