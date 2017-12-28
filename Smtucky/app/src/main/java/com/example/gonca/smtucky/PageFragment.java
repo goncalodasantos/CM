@@ -26,6 +26,10 @@ public class PageFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         page = 1;
+
+    }
+    public void refreshApi(){
+
     }
 
     @Override

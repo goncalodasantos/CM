@@ -38,6 +38,9 @@ public class FavoritesFragment extends Fragment {
         super.onCreate(savedInstanceState);
         page = 3;
     }
+    public void refreshApi(){
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

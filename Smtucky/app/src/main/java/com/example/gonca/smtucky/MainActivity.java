@@ -12,6 +12,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    ViewPager viewPager;
     Routes routes = null;
     ArrayList<String> listOfRoutes = new ArrayList<String>();
 
@@ -182,6 +185,10 @@ public class MainActivity extends AppCompatActivity {
         //viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
                // MainActivity.this));
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        //tabLayout.addTab(tabLayout.newTab().setCustomView(tabView));
+
+        //tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
         final PageAdapter adapter = new PageAdapter (getSupportFragmentManager(), 3);
         viewPager.setAdapter(adapter);
         //viewPager.setOffscreenPageLimit(0);
@@ -210,14 +217,11 @@ public class MainActivity extends AppCompatActivity {
                     );
                 }
                 else if(tab.getPosition()==1){
-                    Resources res = getResources();
-                    String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
-                    mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
-                    mRecyclerView.setAdapter(mAdapter);
+                    adapter.notifyDataSetChanged();
 
                 }
                 else if(tab.getPosition()==2){
-
+                    adapter.notifyDataSetChanged();
                 }
 
             }
@@ -242,10 +246,16 @@ public class MainActivity extends AppCompatActivity {
             setContentView(R.layout.activity_main);
 
             // Get the ViewPager and set it's PagerAdapter so that it can display items
-            final ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+            viewPager = (ViewPager) findViewById(R.id.viewpager);
             //viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
             // MainActivity.this));
             TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+            //tabLayout.addTab(tabLayout.newTab().setCustomView(tabView));
+            tabLayout.addTab(tabLayout.newTab().setText("TAB 1"));
+            tabLayout.addTab(tabLayout.newTab());
+            tabLayout.addTab(tabLayout.newTab());
+
+            tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
             final PageAdapter adapter = new PageAdapter (getSupportFragmentManager(), 3);
             viewPager.setAdapter(adapter);
             //viewPager.setOffscreenPageLimit(0);
@@ -257,6 +267,7 @@ public class MainActivity extends AppCompatActivity {
             tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
                 @Override
                 public void onTabSelected(TabLayout.Tab tab) {
+
                     Toast.makeText(MainActivity.this, "WE CHANGED TO: "+tab.getPosition(), Toast.LENGTH_SHORT).show();
                     viewPager.setCurrentItem(tab.getPosition());
                     if(tab.getPosition()==0) {
@@ -268,10 +279,25 @@ public class MainActivity extends AppCompatActivity {
                                     public void onItemClick(View view, int position) {
                                         Intent i = new Intent(MainActivity.this, RouteActivity.class);
                                         startActivity(i);
-
                                     }
                                 })
                         );
+                    }
+                    else if(tab.getPosition()==1){
+                        //MainActivity.this.setAdapter(tab.getPosition());
+                        viewPager.setCurrentItem(tab.getPosition());
+                        adapter.refreshFragment(tab.getPosition());
+
+
+
+
+
+                    }
+                    else if(tab.getPosition()==2){
+                        viewPager.setCurrentItem(tab.getPosition());
+                        adapter.refreshFragment(tab.getPosition());
+
+                        //adapter.notifyDataSetChanged();
                     }
 
                 }
@@ -294,6 +320,14 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    }
+
+    void setAdapter(int position) {
+        PageAdapter pagerAdapter = new PageAdapter(getSupportFragmentManager(),3);
+        viewPager.setAdapter(pagerAdapter);
+        // when notify then set manually current position.
+        viewPager.setCurrentItem(position);
+        pagerAdapter.notifyDataSetChanged();
     }
 
     private void setupRecycler() {
