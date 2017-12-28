@@ -2,6 +2,7 @@ package com.example.gonca.smtucky;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Fragment;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
 
@@ -41,7 +42,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends android.support.v4.app.FragmentActivity {
 
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
@@ -138,6 +139,9 @@ public class MainActivity extends AppCompatActivity {
 
         }
         Toast.makeText(context, "TESTE", Toast.LENGTH_SHORT).show();
+
+
+
         mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addOnItemTouchListener(
@@ -151,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
         );
+
 
     }
 
@@ -178,7 +183,8 @@ public class MainActivity extends AppCompatActivity {
 
             startService(intent);//not startActivity!
             super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_main);
+
+            //setContentView(R.layout.activity_main);
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         final ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -191,10 +197,17 @@ public class MainActivity extends AppCompatActivity {
 
         final PageAdapter adapter = new PageAdapter (getSupportFragmentManager(), 3);
         viewPager.setAdapter(adapter);
+        tabLayout.setupWithViewPager(viewPager);
         //viewPager.setOffscreenPageLimit(0);
 
+            //viewPager.setOffscreenPageLimit(0);
+            //android.support.v4.app.Fragment fragment = adapter.getItem(0);
+            //android.support.v4.app.Fragment fragment = adapter.getItem(1);
+            //FragmentManager fragmentManager = getSupportFragmentManager();
+            //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().replace(R.id.container,fragment);
+            //fragmentTransaction.commit();
 
-        tabLayout.setupWithViewPager(viewPager);
+
         //tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -203,6 +216,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "WE CHANGED TO: "+tab.getPosition(), Toast.LENGTH_SHORT).show();
                 viewPager.setCurrentItem(tab.getPosition());
                 if(tab.getPosition()==0) {
+
                     mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
                     mRecyclerView.setAdapter(mAdapter);
                     mRecyclerView.addOnItemTouchListener(
@@ -217,11 +231,32 @@ public class MainActivity extends AppCompatActivity {
                     );
                 }
                 else if(tab.getPosition()==1){
-                    adapter.notifyDataSetChanged();
+                    //android.support.v4.app.Fragment fragment = adapter.getItem(1);
+                    //FragmentManager fragmentManager = getSupportFragmentManager();
+                    //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().replace(R.id.fragment_container,fragment);
+                    //fragmentTransaction.commit();
 
+
+                    viewPager.setCurrentItem(tab.getPosition());
+                    adapter.refreshFragment(tab.getPosition());
+                    Resources res = getResources();
+                    String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
+                    mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
+                    mRecyclerView.setAdapter(mAdapter);
                 }
                 else if(tab.getPosition()==2){
-                    adapter.notifyDataSetChanged();
+                    //android.support.v4.app.Fragment fragment = adapter.getItem(1);
+                    //FragmentManager fragmentManager = getSupportFragmentManager();
+                    //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().replace(R.id.fragment_container,fragment);
+                    //fragmentTransaction.commit();
+
+
+                    viewPager.setCurrentItem(tab.getPosition());
+                    adapter.refreshFragment(tab.getPosition());
+                    Resources res = getResources();
+                    String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
+                    mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
+                    mRecyclerView.setAdapter(mAdapter);
                 }
 
             }
@@ -250,18 +285,20 @@ public class MainActivity extends AppCompatActivity {
             //viewPager.setAdapter(new PageAdapter(getSupportFragmentManager(),
             // MainActivity.this));
             TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-            //tabLayout.addTab(tabLayout.newTab().setCustomView(tabView));
-            tabLayout.addTab(tabLayout.newTab().setText("TAB 1"));
-            tabLayout.addTab(tabLayout.newTab());
-            tabLayout.addTab(tabLayout.newTab());
-
-            tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
             final PageAdapter adapter = new PageAdapter (getSupportFragmentManager(), 3);
             viewPager.setAdapter(adapter);
-            //viewPager.setOffscreenPageLimit(0);
-
-
             tabLayout.setupWithViewPager(viewPager);
+
+            tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
+            //android.support.v4.app.Fragment fragment = adapter.getItem(0);
+            //android.support.v4.app.Fragment fragment = adapter.getItem(1);
+            //FragmentManager fragmentManager = getSupportFragmentManager();
+            //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().replace(R.id.container,fragment);
+            //fragmentTransaction.commit();
+
+
+
             //tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
             viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
             tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -271,6 +308,9 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "WE CHANGED TO: "+tab.getPosition(), Toast.LENGTH_SHORT).show();
                     viewPager.setCurrentItem(tab.getPosition());
                     if(tab.getPosition()==0) {
+
+                        viewPager.setCurrentItem(tab.getPosition());
+                        adapter.refreshFragment(tab.getPosition());
                         mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
                         mRecyclerView.setAdapter(mAdapter);
                         mRecyclerView.addOnItemTouchListener(
@@ -282,22 +322,52 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 })
                         );
-                    }
-                    else if(tab.getPosition()==1){
-                        //MainActivity.this.setAdapter(tab.getPosition());
+                        //android.support.v4.app.Fragment fragment = adapter.getItem(0);
+                        //FragmentManager fragmentManager = getSupportFragmentManager();
+                        //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().replace(R.id.fragment_container,fragment);
+                        //fragmentTransaction.commit();
+
                         viewPager.setCurrentItem(tab.getPosition());
                         adapter.refreshFragment(tab.getPosition());
 
 
 
+
+                    }
+                    else if(tab.getPosition()==1){
+
+                        //android.support.v4.app.Fragment fragment = adapter.getItem(1);
+                        //FragmentManager fragmentManager = getSupportFragmentManager();
+                        //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().replace(R.id.fragment_container,fragment);
+                        //fragmentTransaction.commit();
+
+
+                        viewPager.setCurrentItem(tab.getPosition());
+                        adapter.refreshFragment(tab.getPosition());
+                        Resources res = getResources();
+                        String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
+                        mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
+                        mRecyclerView.setAdapter(mAdapter);
 
 
                     }
                     else if(tab.getPosition()==2){
+
+
+
+
+                        //android.support.v4.app.Fragment fragment = adapter.getItem(2);
+                        //FragmentManager fragmentManager = getSupportFragmentManager();
+                        //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().replace(R.id.fragment_container,fragment);
+                        //fragmentTransaction.commit();
+
                         viewPager.setCurrentItem(tab.getPosition());
                         adapter.refreshFragment(tab.getPosition());
-
                         //adapter.notifyDataSetChanged();
+                        Resources res = getResources();
+                        String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
+                        mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
+                        mRecyclerView.setAdapter(mAdapter);
                     }
 
                 }

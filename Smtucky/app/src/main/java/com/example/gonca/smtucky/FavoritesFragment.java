@@ -22,6 +22,8 @@ public class FavoritesFragment extends Fragment {
     public static final String ARG_PAGE = "ARG_PAGE";
     private RecyclerView mRecyclerView;
     private int page;
+    private LinearLayoutManager mLinearLayoutManager;
+
     private RecyclerView.Adapter mAdapter;
 
     public static FavoritesFragment newInstance(int page) {
@@ -49,8 +51,13 @@ public class FavoritesFragment extends Fragment {
         Resources res = getResources();
         String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
         mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
+        mLinearLayoutManager = new LinearLayoutManager(getActivity());
+        mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setLayoutManager(mLinearLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
         return view;
     }
