@@ -43,8 +43,7 @@ public class RouteActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter1, mAdapter2;
     private String currentUserEmail;
     private User u = null;
-    private boolean already_favorite = false;
-    private boolean not_favorite = false;
+    private boolean favorite = true;
 
     private int state = 0;
 
@@ -75,6 +74,16 @@ public class RouteActivity extends AppCompatActivity {
             }
         }
 
+        ArrayList<String> favorites = u.getFavorites();
+        if(favorites.contains(""+routeFrom.getId())){
+            favorite = true;
+
+            invalidateOptionsMenu();
+        }
+        else{
+            favorite=false;
+            invalidateOptionsMenu();
+        }
 
         setupRecyclers();
     }
@@ -156,20 +165,18 @@ public class RouteActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
 
         getMenuInflater().inflate(R.menu.menu_details, menu);
-        /*if (already_favorite) {
+        if (favorite) {
             MenuItem itemf = menu.findItem(R.id.favorite_route);
             itemf.setVisible(false);
-        }else{
-            MenuItem item = menu.findItem(R.id.favorite_route);
-            item.setVisible(true);;
-        }
-        if (not_favorite) {
-            MenuItem nitem = menu.findItem(R.id.remove_favorite_route);
-            nitem.setVisible(false);
-        }else{
+
             MenuItem nitem = menu.findItem(R.id.remove_favorite_route);
             nitem.setVisible(true);
-        }*/
+        }else{
+            MenuItem item = menu.findItem(R.id.favorite_route);
+            item.setVisible(true);
+            MenuItem nitem = menu.findItem(R.id.remove_favorite_route);
+            nitem.setVisible(false);
+        }
         // Inflate the menu; this adds items to the action bar if it is present.
 
 
@@ -198,28 +205,34 @@ public class RouteActivity extends AppCompatActivity {
             case R.id.favorite_route:
                 if(u!=null) {
                     ArrayList<String> favorites = u.getFavorites();
-                    /*ArrayList<String> listOfRoutes = new ArrayList<>();
-                    RouteDB route_db = Room.databaseBuilder(getApplicationContext(),RouteDB.class, "routesxgxsassaaa").allowMainThreadQueries().build();
-                    ArrayList<Route> routesInDb = null;
-                    routesInDb = (ArrayList<Route>) route_db.routeDAO().getRoutes();
 
 
-                    for (int i = 0; i < routesInDb.size(); i++) {
-                        String route=routesInDb.get(i).getRoute_name();
-                        for(int i = 0; i<favorites.size(); i++) {
-                            //if already in favorites
-                            //already_favorite = true;
-                            //invalidateOptionsMenu();
+
+
+
+                    if(!favorites.contains(""+routeFrom.getId())){
+                        favorites.add("" + routeFrom.getId());
+
+                        u.setFavorites(favorites);
+
+                        UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
+                        user_db.UserDAO().update(u);
+                        Toast.makeText(this, "Autocarro adicionado aos favoritos!", Toast.LENGTH_SHORT).show();
+
+                        if(favorites.contains(""+routeFrom.getId())){
+                            favorite = true;
+                            invalidateOptionsMenu();
                         }
+                        else{
+                            favorite=false;
+                            invalidateOptionsMenu();
+                        }
+
                     }
+                    else{
+                        Toast.makeText(this, "Autocarro já nos favoritos!", Toast.LENGTH_SHORT).show();
 
-                    */
-                    favorites.add("" + routeFrom.getId());
-                    u.setFavorites(favorites);
-
-                    UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
-                    user_db.UserDAO().update(u);
-                    Toast.makeText(this, "Autocarro adicionado aos favoritos!", Toast.LENGTH_SHORT).show();
+                    }
                 }else{
                     Toast.makeText(this, "Autocarro não adicionado!", Toast.LENGTH_SHORT).show();
                 }
@@ -229,11 +242,28 @@ public class RouteActivity extends AppCompatActivity {
             case R.id.remove_favorite_route:
                 if(u!=null) {
                     ArrayList<String> favorites = u.getFavorites();
-                    favorites.remove(routeFrom.getId());
-                    u.setFavorites(favorites);
-                    UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
-                    user_db.UserDAO().update(u);
-                    Toast.makeText(this, "Autocarro removido dos favoritos!", Toast.LENGTH_SHORT).show();
+
+                    if(favorites.contains(""+routeFrom.getId())){
+                        favorites.remove(""+routeFrom.getId());
+                        u.setFavorites(favorites);
+                        UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
+                        user_db.UserDAO().update(u);
+                        Toast.makeText(this, "Autocarro removido dos favoritos!", Toast.LENGTH_SHORT).show();
+                        if(favorites.contains(""+routeFrom.getId())){
+                            favorite = true;
+                            invalidateOptionsMenu();
+                        }
+                        else{
+                            favorite=false;
+                            invalidateOptionsMenu();
+                        }
+                    }
+                    else{
+                        Toast.makeText(this, "Autocarro não está nos favoritos!", Toast.LENGTH_SHORT).show();
+
+                    }
+
+
                 }
                 //intent = new Intent(RouteActivity.this, AddAlarmActivity.class);
                 //RouteActivity.this.startActivity(intent);

@@ -204,20 +204,26 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(View view, int position) {
 
+                current_viewmodel.getUser().getFavorites();
+
+                int positionInGlobal= Integer.parseInt(current_viewmodel.getUser().getFavorites().get(position));
+
+
+
                 Intent intent = new Intent(MainActivity.this, RouteActivity.class);
                 intent.putExtra("email", currentUserEmail );
 
                 Bundle b = new Bundle();
 
-                if(position%2==0){
-                    b.putSerializable("routeFrom", routes.getRoutes().get(position));
-                    b.putSerializable("routeTo", routes.getRoutes().get(position+1));
+                if(positionInGlobal%2==0){
+                    b.putSerializable("routeFrom", routes.getRoutes().get(positionInGlobal));
+                    b.putSerializable("routeTo", routes.getRoutes().get(positionInGlobal+1));
 
 
                 }
                 else{
-                    b.putSerializable("routeFrom", routes.getRoutes().get(position));
-                    b.putSerializable("routeTo", routes.getRoutes().get(position-1));
+                    b.putSerializable("routeFrom", routes.getRoutes().get(positionInGlobal));
+                    b.putSerializable("routeTo", routes.getRoutes().get(positionInGlobal-1));
 
                 }
 
