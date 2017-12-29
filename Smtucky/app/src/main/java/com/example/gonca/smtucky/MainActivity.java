@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -46,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
     private String currentUserEmail;
     private ArrayList<String> favorites;
     private RecyclerItemClickListener listTouchListener;
+
+    public static final String PREFS_NAME = "MyPrefs";
 
     private class APIReceiver extends BroadcastReceiver {
         @Override
@@ -300,7 +303,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         List<User> listOfUsers = user_db.UserDAO().getUsers();
-
         current_viewmodel = ViewModelProviders.of(this).get(CurrentDataModel.class);
 
 
@@ -310,15 +312,14 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "email"+currentUserEmail, Toast.LENGTH_SHORT).show();
 
 
-
         for (int j=0;j<current_viewmodel.getUsers().size();j++){
             if(current_viewmodel.getUsers().get(j).getMail().equals(currentUserEmail)){
                 current_viewmodel.setUser(current_viewmodel.getUsers().get(j));
                 favorites = current_viewmodel.getUser().getFavorites();
             }
-
         }
 
+        saveUserId();
 
         List<Warning> listOfWarnings = user_db.WarningDao().getWarnings();
 
@@ -431,6 +432,11 @@ public class MainActivity extends AppCompatActivity {
 
         setupRecycler();
         updateUIwithRoutes(this);
+    }
+
+    private void saveUserId() {
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        settings.edit().putInt("userId", current_viewmodel.getUser().getId()).commit();
     }
 
     private void setupRecycler() {
