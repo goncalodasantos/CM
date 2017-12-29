@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
@@ -21,6 +22,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
@@ -147,14 +149,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        List<Warning> listOfWarnings = user_db.WarningDao().getWarnings();
+        List<Warning> listOfWarnings = user_db.WarningDao().getWarningsByUser(getUserId()));
         current_viewmodel.setWarnings((ArrayList<Warning>) listOfWarnings);
 
         mAdapter = new ItemViewAdapter(new ArrayList<>(listOfWarnings));
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.removeOnItemTouchListener(listTouchListener);
-
-        mRecyclerView.addOnItemTouchListener(listTouchListener);
+        setListeners(1);
 
     }
 
@@ -404,7 +404,8 @@ public class MainActivity extends AppCompatActivity {
                } else if (tab.getPosition() == 1) {
                    //viewPager.setCurrentItem(tab.getPosition());
                    //adapter.refreshFragment(tab.getPosition());
-                   updateUIwithWarnings(MainActivity.this);
+                    updateUIwithWarnings(MainActivity.this);
+
 
 
                } else if (tab.getPosition() == 2) {
@@ -434,9 +435,58 @@ public class MainActivity extends AppCompatActivity {
         updateUIwithRoutes(this);
     }
 
+    private void setListeners(int tab) {
+        mRecyclerView.removeOnItemTouchListener(listTouchListener);
+        switch(tab) {
+            case 0:
+                listTouchListener=new RecyclerItemClickListener(MainActivity.this, new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Intent intent = new Intent(MainActivity.this, RouteActivity.class);
+                        Bundle b = new Bundle();
+
+                        if(position%2==0){
+                            b.putSerializable("routeFrom", routes.getRoutes().get(position));
+                            b.putSerializable("routeTo", routes.getRoutes().get(position+1));
+
+
+                        }
+                        else{
+                            b.putSerializable("routeFrom", routes.getRoutes().get(position));
+                            b.putSerializable("routeTo", routes.getRoutes().get(position-1));
+
+                        }
+
+                        intent.putExtras(b); //Put your id to your next Intent
+                        MainActivity.this.startActivity(intent);
+                    }
+                });
+                break;
+            case 1:
+                listTouchListener=new RecyclerItemClickListener(MainActivity.this, new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Intent intent = new Intent(MainActivity.this, AddAlarmActivity.class);
+                        intent.putExtra("alarm", user_db.WarningDao().getWarningsByUser(getUserId()).get(position));
+                        intent.putExtra("isEditable", true);
+                        MainActivity.this.startActivity(intent);
+                    }
+                });
+                break;
+            case 2:
+                break;
+        }
+        mRecyclerView.addOnItemTouchListener(listTouchListener);
+    }
+
     private void saveUserId() {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         settings.edit().putInt("userId", current_viewmodel.getUser().getId()).commit();
+    }
+
+    public int getUserId() {
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        return settings.getInt("userId", 0);
     }
 
     private void setupRecycler() {
@@ -481,6 +531,20 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.startActivity(intent);
                 return true;
 
+            case R.id.about:
+                View messageView = getLayoutInflater().inflate(R.layout.about, null, false);
+
+                // When linking text, force to always use default color. This works
+                // around a pressed color state bug.
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setIcon(R.mipmap.ic_launcher_round);
+                builder.setTitle(R.string.app_name);
+                builder.setView(messageView);
+                builder.create();
+                builder.show();
+
+                return true;
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
@@ -488,6 +552,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
     }
 }
 

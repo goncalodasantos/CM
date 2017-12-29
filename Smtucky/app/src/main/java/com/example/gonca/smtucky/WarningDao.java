@@ -1,6 +1,7 @@
 package com.example.gonca.smtucky;
 
 import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
@@ -25,11 +26,17 @@ public interface WarningDao {
     @Query("SELECT * FROM warning")
     List<Warning> getWarnings();
 
-    @Update
-    void update(Warning warning);
+    @Query("SELECT * FROM warning WHERE userId = :userId")
+    List<Warning> getWarningsByUser(int userId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Warning warning);
+
+    @Update
+    void update(Warning warning);
+
+    @Delete
+    void delete(Warning warning);
 
     public class Converters {
         @TypeConverter

@@ -18,6 +18,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -25,6 +26,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextClock;
@@ -68,6 +70,9 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
     CurrentDataModel current_viewmodel = null;
     public static final String PREFS_NAME = "MyPrefs";
 
+    private Boolean isEditable = false;
+    private Warning thisOne;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,17 +89,18 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
                 MY_PERMISSIONS_REQUEST_READ_LOCATION);
 
         Warning b = (Warning) getIntent().getExtras().getSerializable("alarm");
-        Boolean isEditable = getIntent().getExtras().getBoolean("isEditable");
+        thisOne = b;
+        isEditable = getIntent().getExtras().getBoolean("isEditable");
 
         if(b != null) {
-            setupInfoToEdit(b, isEditable);
+            setupInfoToEdit(b);
         } else {
             ((TextView) findViewById(R.id.textView2)).setText(getActualTime());
         }
     }
 
 
-    private void setupInfoToEdit(Warning alarm, Boolean isEditable) {
+    private void setupInfoToEdit(Warning alarm) {
 /*
         Boolean[] daysToDrop = readValuesFromCheckbox();
         String name = ((TextInputLayout)findViewById(R.id.textInputLayout2)).getEditText().getText().toString();
@@ -154,6 +160,9 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
             ((CheckBox) findViewById(R.id.checkBox7)).setEnabled(false);
             ((CheckBox) findViewById(R.id.checkBox8)).setEnabled(false);
 
+        } else {
+            ((Button)findViewById(R.id.button3)).setText("Save");
+            ((Button)findViewById(R.id.button2)).setText("Delete");
         }
     }
 
@@ -348,7 +357,12 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
 
     private void saveToDb(Warning toAdd) {
         UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
-        user_db.WarningDao().insert(toAdd);
+        if (isEditable) {
+            user_db.WarningDao().update(toAdd);
+        } else {
+            user_db.WarningDao().insert(toAdd);
+        }
+        user_db.close();
     }
 
     private void setAlarm(Warning toAdd, Calendar cal) {
@@ -377,8 +391,14 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
         return toReturn;
     }
 
-    public void goBack(View view) {
+    public void goBackOrDelete(View view) {
+        if(isEditable) {
+            UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
+            user_db.WarningDao().delete(thisOne);
+            user_db.close();
+        }
         super.onBackPressed();
+
     }
 
     @Override
@@ -406,6 +426,22 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
                 intent = new Intent(AddAlarmActivity.this, AddAlarmActivity.class);
                 AddAlarmActivity.this.startActivity(intent);
                 return true;
+
+            case R.id.about:
+                View messageView = getLayoutInflater().inflate(R.layout.about, null, false);
+
+                // When linking text, force to always use default color. This works
+                // around a pressed color state bug.
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setIcon(R.mipmap.ic_launcher_round);
+                builder.setTitle(R.string.app_name);
+                builder.setView(messageView);
+                builder.create();
+                builder.show();
+
+                return true;
+
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
