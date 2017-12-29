@@ -311,7 +311,6 @@ public class MainActivity extends AppCompatActivity {
         currentUserEmail=getIntent().getStringExtra("email");
         Toast.makeText(this, "email"+currentUserEmail, Toast.LENGTH_SHORT).show();
 
-
         for (int j=0;j<current_viewmodel.getUsers().size();j++){
             if(current_viewmodel.getUsers().get(j).getMail().equals(currentUserEmail)){
                 current_viewmodel.setUser(current_viewmodel.getUsers().get(j));
