@@ -9,6 +9,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -24,6 +26,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextClock;
@@ -65,38 +68,102 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
     private Routes routes = null;
     private String currentUserEmail;
     CurrentDataModel current_viewmodel = null;
+    public static final String PREFS_NAME = "MyPrefs";
+
+    private Boolean isEditable = false;
+    private Warning thisOne;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_alarm);
-
         // TO DO : Change to alarm model
-        Calendar b = (Calendar) getIntent().getExtras().getSerializable("alarm");
+
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+
+        setupRoutesSpinner();
+        getUserId();
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                MY_PERMISSIONS_REQUEST_READ_LOCATION);
+
+        Warning b = (Warning) getIntent().getExtras().getSerializable("alarm");
+        thisOne = b;
+        isEditable = getIntent().getExtras().getBoolean("isEditable");
 
         if(b != null) {
             setupInfoToEdit(b);
         } else {
             ((TextView) findViewById(R.id.textView2)).setText(getActualTime());
         }
-
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(myToolbar);
-
-        setupRoutesSpinner();
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                MY_PERMISSIONS_REQUEST_READ_LOCATION);
     }
 
-    private void setupInfoToEdit(Calendar alarm) {
+
+    private void setupInfoToEdit(Warning alarm) {
 /*
         Boolean[] daysToDrop = readValuesFromCheckbox();
         String name = ((TextInputLayout)findViewById(R.id.textInputLayout2)).getEditText().getText().toString();
         String route = ((Spinner) findViewById(R.id.spinner)).getSelectedItem().toString();
 */
-        Log.d("alarm", new SimpleDateFormat("hh:mm aa").format(alarm.getTime()));
-        ((TextView) findViewById(R.id.textView2)).setText(new SimpleDateFormat("hh:mm aa").format(alarm.getTime()));
+
+        String time = "";
+        if(alarm.getHour() > 12) {
+            if(alarm.getHour() - 12 < 10) {
+                time += "0";
+            }
+            time += (alarm.getHour()-12) + ":";
+            if(alarm.getMinute() < 10) {
+                time += "0";
+            }
+            time += alarm.getMinute() + " PM";
+        } else {
+            if(alarm.getHour() < 10) {
+                time += "0";
+            }
+            time += alarm.getHour() + ":";
+            if(alarm.getMinute() < 10) {
+                time += "0";
+            }
+            time += alarm.getMinute() + " AM";
+        }
+
+        ((TextView) findViewById(R.id.textView2)).setText(time);
+
+        ((TextInputLayout)findViewById(R.id.textInputLayout2)).getEditText().setText(alarm.getName());
+        ((Spinner) findViewById(R.id.spinner)).setSelection(alarm.getRoute());
+
+        ((CheckBox) findViewById(R.id.checkBox5)).setChecked(alarm.getMonday() == 1);
+        ((CheckBox) findViewById(R.id.checkBox3)).setChecked(alarm.getTuesday() == 1);
+        ((CheckBox) findViewById(R.id.checkBox4)).setChecked(alarm.getWednesday() == 1);
+        ((CheckBox) findViewById(R.id.checkBox)).setChecked(alarm.getThursday() == 1);
+        ((CheckBox) findViewById(R.id.checkBox6)).setChecked(alarm.getFriday() == 1);
+        ((CheckBox) findViewById(R.id.checkBox7)).setChecked(alarm.getSaturday() == 1);
+        ((CheckBox) findViewById(R.id.checkBox8)).setChecked(alarm.getSunday() == 1);
+
+        if(isEditable != true) {
+            ((TextView) findViewById(R.id.textView2)).setOnClickListener(null);
+            ((TextInputLayout)findViewById(R.id.textInputLayout2)).getEditText().setFocusable(false);
+            ((TextInputLayout)findViewById(R.id.textInputLayout2)).getEditText().setFocusableInTouchMode(false);
+            ((TextInputLayout)findViewById(R.id.textInputLayout2)).getEditText().setClickable(false);
+            ((Spinner) findViewById(R.id.spinner)).setEnabled(false);
+            ((Spinner) findViewById(R.id.spinner)).setClickable(false);
+            ((Spinner) findViewById(R.id.spinner)).setFocusable(false);
+            findViewById(R.id.button2).setVisibility(View.GONE);
+            findViewById(R.id.button3).setVisibility(View.GONE);
+
+            ((CheckBox) findViewById(R.id.checkBox5)).setEnabled(false);
+            ((CheckBox) findViewById(R.id.checkBox3)).setEnabled(false);
+            ((CheckBox) findViewById(R.id.checkBox4)).setEnabled(false);
+            ((CheckBox) findViewById(R.id.checkBox)).setEnabled(false);
+            ((CheckBox) findViewById(R.id.checkBox6)).setEnabled(false);
+            ((CheckBox) findViewById(R.id.checkBox7)).setEnabled(false);
+            ((CheckBox) findViewById(R.id.checkBox8)).setEnabled(false);
+
+        } else {
+            ((Button)findViewById(R.id.button3)).setText("Save");
+            ((Button)findViewById(R.id.button2)).setText("Delete");
+        }
     }
 
     private void setupRoutesSpinner() {
@@ -107,7 +174,6 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
         routes.setRoutes(routesInDb);
 
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
-        Log.d("routes", Integer.toString(routes.getRoutes().size()));
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<Route> adapter = new ArrayAdapter(this,
                 android.R.layout.simple_spinner_item, routes.getRoutes());
@@ -167,6 +233,7 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
+
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_READ_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
@@ -208,106 +275,108 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
 
     public void addAlarm(View view) {
 
-        final ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("It's loading....");
-        progressDialog.setTitle("Adding warning");
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setIndeterminate(true);
-        progressDialog.show();
 
-        this.runOnUiThread(new Runnable() {
-            @Override
-            public void run(){
-                Warning toAdd = new Warning();
+        if(((TextInputLayout)findViewById(R.id.textInputLayout2)).getEditText().getText().toString().length() == 0 ) {
+            ((TextInputLayout) findViewById(R.id.textInputLayout2)).setError("You have to give a name to the route");
+        } else {
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("It's loading....");
+            progressDialog.setTitle("Adding warning");
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setIndeterminate(true);
+            progressDialog.show();
 
-                Boolean[] daysToDrop = readValuesFromCheckbox();
+            this.runOnUiThread(new Runnable() {
+                @Override
+                public void run(){
+                    Warning toAdd = new Warning();
 
-                for(int i = 0; i < daysToDrop.length; i++) {
-                    switch(i) {
-                        case 0:
-                            toAdd.setMonday(daysToDrop[i] ? 1 : 0);
-                            break;
-                        case 1:
-                            toAdd.setTuesday(daysToDrop[i] ? 1 : 0);
-                            break;
-                        case 2:
-                            toAdd.setWednesday(daysToDrop[i] ? 1 : 0);
-                            break;
-                        case 3:
-                            toAdd.setThursday(daysToDrop[i] ? 1 : 0);
-                            break;
-                        case 4:
-                            toAdd.setFriday(daysToDrop[i] ? 1 : 0);
-                            break;
-                        case 5:
-                            toAdd.setSaturday(daysToDrop[i] ? 1 : 0);
-                            break;
-                        case 6:
-                            toAdd.setSunday(daysToDrop[i] ? 1 : 0);
-                            break;
+                    Boolean[] daysToDrop = readValuesFromCheckbox();
+
+                    for(int i = 0; i < daysToDrop.length; i++) {
+                        switch(i) {
+                            case 0:
+                                toAdd.setMonday(daysToDrop[i] ? 1 : 0);
+                                break;
+                            case 1:
+                                toAdd.setTuesday(daysToDrop[i] ? 1 : 0);
+                                break;
+                            case 2:
+                                toAdd.setWednesday(daysToDrop[i] ? 1 : 0);
+                                break;
+                            case 3:
+                                toAdd.setThursday(daysToDrop[i] ? 1 : 0);
+                                break;
+                            case 4:
+                                toAdd.setFriday(daysToDrop[i] ? 1 : 0);
+                                break;
+                            case 5:
+                                toAdd.setSaturday(daysToDrop[i] ? 1 : 0);
+                                break;
+                            case 6:
+                                toAdd.setSunday(daysToDrop[i] ? 1 : 0);
+                                break;
+                        }
                     }
-                }
 
-                toAdd.setName(((TextInputLayout)findViewById(R.id.textInputLayout2)).getEditText().getText().toString());
-                toAdd.setRoute(((Route)((Spinner) findViewById(R.id.spinner)).getSelectedItem()).getId());
-                // TODO
-                toAdd.setUserId(1);
-                String time = ((TextView) findViewById(R.id.textView2)).getText().toString();
-                Calendar cal = Calendar.getInstance();
-                SimpleDateFormat sdf = new SimpleDateFormat("hh:mm aa", Locale.getDefault());
+                    toAdd.setName(((TextInputLayout)findViewById(R.id.textInputLayout2)).getEditText().getText().toString());
+                    toAdd.setRoute(((Route)((Spinner) findViewById(R.id.spinner)).getSelectedItem()).getId());
 
-                try {
-                    cal.setTime(sdf.parse(time));
-                } catch (ParseException e) {
+                    toAdd.setUserId(getUserId());
 
-                }
+                    String time = ((TextView) findViewById(R.id.textView2)).getText().toString();
+                    Calendar cal = Calendar.getInstance();
+                    SimpleDateFormat sdf = new SimpleDateFormat("hh:mm aa", Locale.getDefault());
 
-                if(cal.get(Calendar.AM_PM) == 1) {
-                    toAdd.setHour(cal.get(Calendar.HOUR) + 12);
-                } else {
+                    try {
+                        cal.setTime(sdf.parse(time));
+                    } catch (ParseException e) {
+
+                    }
+
+                    if(cal.get(Calendar.AM_PM) == 1) {
+                        toAdd.setHour(cal.get(Calendar.HOUR) + 12);
+                    } else {
+                        toAdd.setHour(cal.get(Calendar.HOUR));
+                    }
+
                     toAdd.setMinute(cal.get(Calendar.MINUTE));
+
+                    toAdd.setLat(location.getLatitude());
+                    toAdd.setLon(location.getLongitude());
+
+                    saveToDb(toAdd);
+                    setAlarm(toAdd, cal);
+
+                    AddAlarmActivity.super.onBackPressed();
+                    progressDialog.dismiss();
                 }
+            });
+        }
+    }
 
-                toAdd.setLat(location.getLatitude());
-                toAdd.setLon(location.getLongitude());
+    private void saveToDb(Warning toAdd) {
+        UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
+        if (isEditable) {
+            user_db.WarningDao().update(toAdd);
+        } else {
+            user_db.WarningDao().insert(toAdd);
+        }
+        user_db.close();
+    }
 
+    private void setAlarm(Warning toAdd, Calendar cal) {
+        Intent intent = new Intent(this, AlarmReceiver.class);
 
-                UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxs").allowMainThreadQueries().build();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("alarm", toAdd);
+        intent.putExtra("bundle", bundle);
 
-                List<User> listOfUsers = user_db.UserDAO().getUsers();
-
-
-                currentUserEmail=getIntent().getStringExtra("email");
-                User u = null;
-                for (int j=0;j<listOfUsers.size();j++){
-                    if(listOfUsers.get(j).getMail().equals(currentUserEmail)){
-                        u = listOfUsers.get(j);
-
-                    }
-
-                }
-                toAdd.setUserId(u.getId());
-                
-                user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxs").allowMainThreadQueries().build();
-                user_db.WarningDao().insert(toAdd);
-        
-
-
-                Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("alarm", toAdd);
-                intent.putExtra("bundle", bundle);
-
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                        getBaseContext(), RQS_1, intent, 0);
-                AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
-                        pendingIntent);
-
-                progressDialog.dismiss();
-                AddAlarmActivity.super.onBackPressed();
-            }
-        });
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                getBaseContext(), RQS_1, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
+                pendingIntent);
     }
 
     public Boolean[] readValuesFromCheckbox() {
@@ -322,8 +391,14 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
         return toReturn;
     }
 
-    public void goBack(View view) {
+    public void goBackOrDelete(View view) {
+        if(isEditable) {
+            UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
+            user_db.WarningDao().delete(thisOne);
+            user_db.close();
+        }
         super.onBackPressed();
+
     }
 
     @Override
@@ -351,6 +426,22 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
                 intent = new Intent(AddAlarmActivity.this, AddAlarmActivity.class);
                 AddAlarmActivity.this.startActivity(intent);
                 return true;
+
+            case R.id.about:
+                View messageView = getLayoutInflater().inflate(R.layout.about, null, false);
+
+                // When linking text, force to always use default color. This works
+                // around a pressed color state bug.
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setIcon(R.mipmap.ic_launcher_round);
+                builder.setTitle(R.string.app_name);
+                builder.setView(messageView);
+                builder.create();
+                builder.show();
+
+                return true;
+
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
@@ -359,4 +450,8 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
         }
     }
 
+    public int getUserId() {
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        return settings.getInt("userId", 0);
+    }
 }

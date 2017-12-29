@@ -17,7 +17,7 @@ import java.util.Locale;
 
 public class ItemViewAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
-    private final List<String> words;
+    private final List<Object> words;
 
     public ItemViewAdapter(ArrayList input) {
         Log.d("IVAdapter", input.toString());
@@ -32,8 +32,7 @@ public class ItemViewAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
     @Override
     public void onBindViewHolder(ItemViewHolder holder, int position) {
-        Log.d("IVAdapter Pos", ""+words.get(position));
-        holder.title.setText(words.get(position));
+        holder.title.setText(words.get(position).toString());
 
 //        holder.moreButton.setOnClickListener(view -> updateList(position));
 //        holder.deleteButton.setOnClickListener(view -> removerItem(position));

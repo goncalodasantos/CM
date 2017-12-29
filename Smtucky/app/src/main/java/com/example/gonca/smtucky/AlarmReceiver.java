@@ -41,11 +41,9 @@ public class AlarmReceiver extends BroadcastReceiver {
         final Context a = k1;
         final Intent b = k2;
 
-        w = (Warning) ((Bundle)k2.getExtras().getBundle("bundle")).getSerializable("alert");
-
+        w = (Warning) k2.getExtras().getBundle("bundle").getSerializable("alarm");
         if(w != null) {
 
-            Toast.makeText(k1, w.getLat() + " " + w.getLon(), Toast.LENGTH_LONG).show();
             mFusedLocationClient = LocationServices.getFusedLocationProviderClient(k1);
             try {
                 mFusedLocationClient.getLastLocation()
@@ -65,7 +63,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             } catch (SecurityException e) {
                 Toast.makeText(a, "Unable to get your current location", Toast.LENGTH_SHORT);
             }
-        }
+        } 
     }
 
     private Boolean compareLocation(Context k1, Location l1, double lat, double lon) {
@@ -95,7 +93,9 @@ public class AlarmReceiver extends BroadcastReceiver {
                         .setContentText("Pick up your bus!");
         // Creates an explicit intent for an Activity in your app
         Intent resultIntent = new Intent(k1, AddAlarmActivity.class);
-        resultIntent.putExtra("alarm", ((Warning) k2.getExtras().getSerializable("alarm")));
+
+        resultIntent.putExtra("alarm", k2.getExtras().getBundle("bundle").getSerializable("alarm"));
+        resultIntent.putExtra("isEditable", false);
         // The stack builder object will contain an artificial back stack for the
         // started Activity.
         // This ensures that navigating backward from the Activity leads out of
