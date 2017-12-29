@@ -202,6 +202,7 @@ public class RouteActivity extends AppCompatActivity {
                     ArrayList<Route> routesInDb = null;
                     routesInDb = (ArrayList<Route>) route_db.routeDAO().getRoutes();
 
+
                     for (int i = 0; i < routesInDb.size(); i++) {
                         String route=routesInDb.get(i).getRoute_name();
                         for(int i = 0; i<favorites.size(); i++) {
