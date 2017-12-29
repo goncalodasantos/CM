@@ -667,6 +667,7 @@ public class MainActivity extends AppCompatActivity {
 
 
             case R.id.add_alarm:
+
                 intent = new Intent(MainActivity.this, AddAlarmActivity.class);
                 intent.putExtra("email", currentUserEmail );
                 MainActivity.this.startActivity(intent);

@@ -92,6 +92,7 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
         thisOne = b;
         isEditable = getIntent().getExtras().getBoolean("isEditable");
 
+
         if(b != null) {
             setupInfoToEdit(b);
         } else {
