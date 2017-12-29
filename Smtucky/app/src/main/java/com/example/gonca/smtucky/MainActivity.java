@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> favorites;
     private RecyclerItemClickListener listTouchListener;
 
+
     public static final String PREFS_NAME = "MyPrefs";
 
     private class APIReceiver extends BroadcastReceiver {
@@ -151,6 +152,8 @@ public class MainActivity extends AppCompatActivity {
 
         List<Warning> listOfWarnings = user_db.WarningDao().getWarningsByUser(getUserId());
         current_viewmodel.setWarnings((ArrayList<Warning>) listOfWarnings);
+
+        Log.v("stuff-debugging alarms",""+listOfWarnings.size());
 
         mAdapter = new ItemViewAdapter(new ArrayList<>(listOfWarnings));
         mRecyclerView.setAdapter(mAdapter);
@@ -295,11 +298,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        Log.v("stuff","resuming");
         Log.v("stuff-startup","Populating ViewModel");
 
         user_db = Room.databaseBuilder(getApplicationContext(),UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
-
 
 
         List<User> listOfUsers = user_db.UserDAO().getUsers();
@@ -308,8 +310,11 @@ public class MainActivity extends AppCompatActivity {
 
         current_viewmodel.setUsers((ArrayList<User>) listOfUsers);
 
+
         currentUserEmail=getIntent().getStringExtra("email");
         Toast.makeText(this, "email"+currentUserEmail, Toast.LENGTH_SHORT).show();
+
+
 
         for (int j=0;j<current_viewmodel.getUsers().size();j++){
             if(current_viewmodel.getUsers().get(j).getMail().equals(currentUserEmail)){
@@ -320,7 +325,13 @@ public class MainActivity extends AppCompatActivity {
 
         saveUserId();
 
-        List<Warning> listOfWarnings = user_db.WarningDao().getWarnings();
+
+        List<Warning> listOfWarnings = user_db.WarningDao().getWarningsByUser(current_viewmodel.getUser().getId());
+
+
+
+
+        user_db.close();
 
 
         current_viewmodel.setWarnings((ArrayList<Warning>) listOfWarnings);
@@ -369,13 +380,11 @@ public class MainActivity extends AppCompatActivity {
 
             Intent intent = new Intent(this, ConnectAPI.class);
             intent.putExtra("decision", "getRoutes");
-            intent.putExtra("routenumber", "6");
 
             startService(intent);//not startActivity!
         } else {
             routes.setRoutes(routesInDb);
         }
-
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         final ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -390,33 +399,34 @@ public class MainActivity extends AppCompatActivity {
         //tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 
+
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-           @Override
-           public void onTabSelected(TabLayout.Tab tab) {
-               Toast.makeText(MainActivity.this, "WE CHANGED TO: " + tab.getPosition(), Toast.LENGTH_SHORT).show();
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                Toast.makeText(MainActivity.this, "WE CHANGED TO: " + tab.getPosition(), Toast.LENGTH_SHORT).show();
 
-               if (tab.getPosition() == 0) {
-                   viewPager.setCurrentItem(tab.getPosition());
-                   updateUIwithRoutes(MainActivity.this);
-                   adapter.refreshFragment(tab.getPosition());
+                if (tab.getPosition() == 0) {
+                    viewPager.setCurrentItem(tab.getPosition());
+                    updateUIwithRoutes(MainActivity.this);
+                    adapter.refreshFragment(tab.getPosition());
 
-               } else if (tab.getPosition() == 1) {
-                   //viewPager.setCurrentItem(tab.getPosition());
-                   //adapter.refreshFragment(tab.getPosition());
+                } else if (tab.getPosition() == 1) {
+                    //viewPager.setCurrentItem(tab.getPosition());
+                    //adapter.refreshFragment(tab.getPosition());
                     updateUIwithWarnings(MainActivity.this);
 
 
 
-               } else if (tab.getPosition() == 2) {
-                   //viewPager.setCurrentItem(tab.getPosition());
-                   //adapter.refreshFragment(tab.getPosition());
+                } else if (tab.getPosition() == 2) {
+                    //viewPager.setCurrentItem(tab.getPosition());
+                    //adapter.refreshFragment(tab.getPosition());
 
                     //String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
 
-                   updateUIwithFavorites(MainActivity.this);
-               }
+                    updateUIwithFavorites(MainActivity.this);
+                }
 
-           }
+            }
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {                }
@@ -424,15 +434,139 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
 
-                }
-            });
+            }
+        });
 
 
 
 
         setupRecycler();
         updateUIwithRoutes(this);
+
+
     }
+
+
+
+    @Override
+    public void onResume() {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        super.onResume();
+        Log.v("stuff","resuming");
+        Log.v("stuff-startup","Populating ViewModel");
+
+        user_db = Room.databaseBuilder(getApplicationContext(),UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
+
+
+
+        List<User> listOfUsers = user_db.UserDAO().getUsers();
+
+        current_viewmodel = ViewModelProviders.of(this).get(CurrentDataModel.class);
+
+
+        current_viewmodel.setUsers((ArrayList<User>) listOfUsers);
+
+        currentUserEmail=getIntent().getStringExtra("email");
+        Toast.makeText(this, "email"+currentUserEmail, Toast.LENGTH_SHORT).show();
+
+        for (int j=0;j<current_viewmodel.getUsers().size();j++){
+            if(current_viewmodel.getUsers().get(j).getMail().equals(currentUserEmail)){
+                current_viewmodel.setUser(current_viewmodel.getUsers().get(j));
+                favorites = current_viewmodel.getUser().getFavorites();
+            }
+        }
+
+        saveUserId();
+
+        List<Warning> listOfWarnings = user_db.WarningDao().getWarnings();
+
+
+        user_db.close();
+
+        current_viewmodel.setWarnings((ArrayList<Warning>) listOfWarnings);
+
+
+
+        Log.v("stuff-startup","Currently there are "+current_viewmodel.getUsers().size()+" users in the Room");
+        Log.v("stuff-startup","Currently there are "+current_viewmodel.getWarnings().size()+" warnings in the Room");
+
+
+
+
+
+        route_db = Room.databaseBuilder(getApplicationContext(),RouteDB.class, "routesxgxsassaaa").allowMainThreadQueries().build();
+
+
+        ArrayList<Route> routesInDb = null;
+
+
+
+
+        routesInDb = (ArrayList<Route>) route_db.routeDAO().getRoutes();
+
+
+
+        Log.v("stuff-startup","Loaded Routes from the Room: " + routesInDb.size());
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(toolbar);
+
+
+        Log.v("stuff-startup","Loaded Routes from the Room: " + routesInDb.size());
+
+        routes = ViewModelProviders.of(this).get(Routes.class);
+
+
+
+
+
+        if(routesInDb.size()==0){
+
+            IntentFilter filter = new IntentFilter();
+            filter.addAction("action");
+            registerReceiver(new APIReceiver(), filter);
+
+
+            Intent intent = new Intent(this, ConnectAPI.class);
+            intent.putExtra("decision", "getRoutes");
+
+            startService(intent);//not startActivity!
+        } else {
+            routes.setRoutes(routesInDb);
+        }
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+
+        int tabposition=tabLayout.getSelectedTabPosition();
+
+        if (tabposition == 0) {
+            updateUIwithRoutes(MainActivity.this);
+
+        } else if (tabposition== 1) {
+            //viewPager.setCurrentItem(tab.getPosition());
+            //adapter.refreshFragment(tab.getPosition());
+            updateUIwithWarnings(MainActivity.this);
+
+
+
+        } else if (tabposition == 2) {
+            //viewPager.setCurrentItem(tab.getPosition());
+            //adapter.refreshFragment(tab.getPosition());
+
+            //String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
+
+            updateUIwithFavorites(MainActivity.this);
+        }
+
+
+
+
+
+        setupRecycler();
+
+
+    }
+
 
     private void setListeners(int tab) {
         mRecyclerView.removeOnItemTouchListener(listTouchListener);
@@ -509,6 +643,8 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu, menu);
         return true;
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

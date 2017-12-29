@@ -171,6 +171,6 @@ public class Warning implements Serializable {
 
     @Override
     public String toString() {
-        return getName() + ": Route " + getRoute();
+        return getName() + " - "+getHour()+":"+getMinute()+" - Route " + getRoute();
     }
 }

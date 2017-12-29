@@ -188,6 +188,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                                     intent.putExtra("email",email);
+                                                    user_db.close();
                                                     LoginActivity.this.startActivity(intent);
                                                 }
                                                 else{
@@ -201,6 +202,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                                     intent.putExtra("email",email);
+                                                    user_db.close();
                                                     LoginActivity.this.startActivity(intent);
 
                                                 }
@@ -219,7 +221,6 @@ public class LoginActivity extends AppCompatActivity {
 
                             // App code
                             Log.d("stuff-Login", "Success");
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         }
 
                         @Override

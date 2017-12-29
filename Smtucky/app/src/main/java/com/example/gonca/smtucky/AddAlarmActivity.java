@@ -357,8 +357,23 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
 
     private void saveToDb(Warning toAdd) {
         UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
+
         if (isEditable) {
-            user_db.WarningDao().update(toAdd);
+            thisOne.setHour(toAdd.getHour());
+            thisOne.setMinute(toAdd.getMinute());
+            thisOne.setName(toAdd.getName());
+            thisOne.setLat(toAdd.getLat());
+            thisOne.setLon(toAdd.getLon());
+            thisOne.setFriday(toAdd.getFriday());
+            thisOne.setMonday(toAdd.getMonday());
+            thisOne.setSaturday(toAdd.getSaturday());
+            thisOne.setRoute(toAdd.getRoute());
+            thisOne.setSunday(toAdd.getSunday());
+            thisOne.setThursday(toAdd.getThursday());
+            thisOne.setTuesday(toAdd.getTuesday());
+            thisOne.setWednesday(toAdd.getWednesday());
+            thisOne.setUserId(toAdd.getUserId());
+            user_db.WarningDao().update(thisOne);
         } else {
             user_db.WarningDao().insert(toAdd);
         }
