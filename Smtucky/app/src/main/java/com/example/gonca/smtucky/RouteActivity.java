@@ -3,6 +3,7 @@ package com.example.gonca.smtucky;
 import android.arch.lifecycle.ViewModelProviders;
 import android.arch.persistence.room.Room;
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -41,6 +42,8 @@ public class RouteActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter1, mAdapter2;
     private String currentUserEmail;
     private User u = null;
+    private boolean already_favorite = false;
+    private boolean not_favorite = false;
 
     private int state = 0;
 
@@ -150,8 +153,25 @@ public class RouteActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+
         getMenuInflater().inflate(R.menu.menu_details, menu);
+        /*if (already_favorite) {
+            MenuItem itemf = menu.findItem(R.id.favorite_route);
+            itemf.setVisible(false);
+        }else{
+            MenuItem item = menu.findItem(R.id.favorite_route);
+            item.setVisible(true);;
+        }
+        if (not_favorite) {
+            MenuItem nitem = menu.findItem(R.id.remove_favorite_route);
+            nitem.setVisible(false);
+        }else{
+            MenuItem nitem = menu.findItem(R.id.remove_favorite_route);
+            nitem.setVisible(true);
+        }*/
+        // Inflate the menu; this adds items to the action bar if it is present.
+
+
         return true;
     }
 
@@ -177,6 +197,21 @@ public class RouteActivity extends AppCompatActivity {
             case R.id.favorite_route:
                 if(u!=null) {
                     ArrayList<String> favorites = u.getFavorites();
+                    /*ArrayList<String> listOfRoutes = new ArrayList<>();
+                    RouteDB route_db = Room.databaseBuilder(getApplicationContext(),RouteDB.class, "routesxgxsassaaa").allowMainThreadQueries().build();
+                    ArrayList<Route> routesInDb = null;
+                    routesInDb = (ArrayList<Route>) route_db.routeDAO().getRoutes();
+
+                    for (int i = 0; i < routesInDb.size(); i++) {
+                        String route=routesInDb.get(i).getRoute_name();
+                        for(int i = 0; i<favorites.size(); i++) {
+                            //if already in favorites
+                            //already_favorite = true;
+                            //invalidateOptionsMenu();
+                        }
+                    }
+
+                    */
                     favorites.add("" + routeFrom.getId());
                     u.setFavorites(favorites);
 
