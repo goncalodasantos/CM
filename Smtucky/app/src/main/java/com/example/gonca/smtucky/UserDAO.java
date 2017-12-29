@@ -5,6 +5,7 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.TypeConverter;
+import android.arch.persistence.room.Update;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -22,6 +23,9 @@ public interface UserDAO {
 
     @Query("SELECT * FROM user")
     List<User> getUsers();
+
+    @Update
+    void update(User user);
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

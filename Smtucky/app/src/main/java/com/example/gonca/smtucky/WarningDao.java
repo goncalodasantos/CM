@@ -5,6 +5,7 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.TypeConverter;
+import android.arch.persistence.room.Update;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -24,6 +25,8 @@ public interface WarningDao {
     @Query("SELECT * FROM warning")
     List<Warning> getWarnings();
 
+    @Update
+    void update(Warning warning);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Warning warning);

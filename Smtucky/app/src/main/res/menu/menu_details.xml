@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/favorite_route"
+        android:icon="@drawable/ic_add_black"
+        android:title="Add to Favorites"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/remove_favorite_route"
+        android:icon="@drawable/ic_delete_black"
+        android:title="Remove from Favorites"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/logout"
+        android:icon="@drawable/ic_logout"
+        android:title="@string/logout"
+        app:showAsAction="always" />
+
+    <item android:id="@+id/see_route"
+        android:title="@string/see_routes"
+        android:icon="@drawable/ic_see_route"
+        app:showAsAction="ifRoom"/>
+
+
+    <item android:id="@+id/add_alarm"
+        android:title="@string/add_alarm"
+        android:icon="@drawable/ic_alarm"
+        app:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        app:showAsAction="never"/>
+</menu>

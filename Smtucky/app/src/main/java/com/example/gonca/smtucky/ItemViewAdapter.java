@@ -32,7 +32,7 @@ public class ItemViewAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
     @Override
     public void onBindViewHolder(ItemViewHolder holder, int position) {
-        Log.d("IVAdapter Pos", words.get(position));
+        Log.d("IVAdapter Pos", ""+words.get(position));
         holder.title.setText(words.get(position));
 
 //        holder.moreButton.setOnClickListener(view -> updateList(position));

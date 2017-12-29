@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
     CurrentDataModel current_viewmodel = null;
     private UserDB user_db;
     private RouteDB route_db;
+    private String currentUserEmail;
+    private ArrayList<String> favorites;
     private RecyclerItemClickListener listTouchListener;
 
     private class APIReceiver extends BroadcastReceiver {
@@ -124,7 +126,110 @@ public class MainActivity extends AppCompatActivity {
         void onClick(View view, int position);
     }
 
+    protected void updateUIwithWarnings(Context context) {
+
+        user_db = Room.databaseBuilder(getApplicationContext(),UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
+        List<User> listOfUsers = user_db.UserDAO().getUsers();
+        current_viewmodel = ViewModelProviders.of(this).get(CurrentDataModel.class);
+        current_viewmodel.setUsers((ArrayList<User>) listOfUsers);
+        currentUserEmail=getIntent().getStringExtra("email");
+        Toast.makeText(this, "email"+currentUserEmail, Toast.LENGTH_SHORT).show();
+
+        for (int j=0;j<current_viewmodel.getUsers().size();j++){
+            if(current_viewmodel.getUsers().get(j).getMail().equals(currentUserEmail)){
+                current_viewmodel.setUser(current_viewmodel.getUsers().get(j));
+                favorites = current_viewmodel.getUser().getFavorites();
+            }
+
+        }
+
+
+        List<Warning> listOfWarnings = user_db.WarningDao().getWarnings();
+        current_viewmodel.setWarnings((ArrayList<Warning>) listOfWarnings);
+
+        mAdapter = new ItemViewAdapter(new ArrayList<>(listOfWarnings));
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.removeOnItemTouchListener(listTouchListener);
+
+        mRecyclerView.addOnItemTouchListener(listTouchListener);
+
+    }
+
+    protected void updateUIwithFavorites(Context context) {
+
+        user_db = Room.databaseBuilder(getApplicationContext(),UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
+        List<User> listOfUsers = user_db.UserDAO().getUsers();
+        current_viewmodel = ViewModelProviders.of(this).get(CurrentDataModel.class);
+        current_viewmodel.setUsers((ArrayList<User>) listOfUsers);
+        currentUserEmail=getIntent().getStringExtra("email");
+
+        for (int j=0;j<current_viewmodel.getUsers().size();j++){
+            if(current_viewmodel.getUsers().get(j).getMail().equals(currentUserEmail)){
+                current_viewmodel.setUser(current_viewmodel.getUsers().get(j));
+                favorites = current_viewmodel.getUser().getFavorites();
+            }
+
+        }
+
+        ArrayList<String> favoritess = new ArrayList<String>();
+        ArrayList<Routes> a =  new ArrayList<>();
+
+
+        for (int i = 0; i < routes.getRoutes().size(); i++) {
+            for(int j=0;j < favorites.size(); j++) {
+                String route = ""+routes.getRoutes().get(i).getId();
+                if(route.equals(favorites.get(j))){
+                    if (!routes.getRoutes().get(i).getRoute_name().equals("Desconhecido")) {
+
+                        favoritess.add(routes.getRoutes().get(i).getRoute_name() + " - " + routes.getRoutes().get(i).getFrom() + " → " + routes.getRoutes().get(i).getTo());
+                    } else {
+                        favoritess.add(routes.getRoutes().get(i).getFrom() + " → " + routes.getRoutes().get(i).getTo());
+                    }
+                }
+            }
+
+
+        }
+        mAdapter = new ItemViewAdapter(new ArrayList<>(favoritess));
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.removeOnItemTouchListener(listTouchListener);
+
+        listTouchListener=new RecyclerItemClickListener(MainActivity.this, new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+
+                Intent intent = new Intent(MainActivity.this, RouteActivity.class);
+                intent.putExtra("email", currentUserEmail );
+
+                Bundle b = new Bundle();
+
+                if(position%2==0){
+                    b.putSerializable("routeFrom", routes.getRoutes().get(position));
+                    b.putSerializable("routeTo", routes.getRoutes().get(position+1));
+
+
+                }
+                else{
+                    b.putSerializable("routeFrom", routes.getRoutes().get(position));
+                    b.putSerializable("routeTo", routes.getRoutes().get(position-1));
+
+                }
+
+                intent.putExtras(b); //Put your id to your next Intent
+                MainActivity.this.startActivity(intent);
+
+
+
+
+            }
+        });
+
+        mRecyclerView.addOnItemTouchListener(listTouchListener);
+
+    }
+
     protected void updateUIwithRoutes(Context context) {
+
 
         listOfRoutes = new ArrayList<String>();
         for (int i = 0; i < routes.getRoutes().size(); i++) {
@@ -141,7 +246,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
-        Toast.makeText(context, "TESTE", Toast.LENGTH_SHORT).show();
         mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.removeOnItemTouchListener(listTouchListener);
@@ -149,7 +253,10 @@ public class MainActivity extends AppCompatActivity {
         listTouchListener=new RecyclerItemClickListener(MainActivity.this, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
+                
                 Intent intent = new Intent(MainActivity.this, RouteActivity.class);
+                intent.putExtra("email", currentUserEmail );
+
                 Bundle b = new Bundle();
 
                 if(position%2==0){
@@ -199,17 +306,18 @@ public class MainActivity extends AppCompatActivity {
 
         current_viewmodel.setUsers((ArrayList<User>) listOfUsers);
 
-        String currentUserEmail=getIntent().getStringExtra("email");
+        currentUserEmail=getIntent().getStringExtra("email");
+        Toast.makeText(this, "email"+currentUserEmail, Toast.LENGTH_SHORT).show();
 
 
 
         for (int j=0;j<current_viewmodel.getUsers().size();j++){
             if(current_viewmodel.getUsers().get(j).getMail().equals(currentUserEmail)){
                 current_viewmodel.setUser(current_viewmodel.getUsers().get(j));
+                favorites = current_viewmodel.getUser().getFavorites();
             }
 
         }
-
 
 
         List<Warning> listOfWarnings = user_db.WarningDao().getWarnings();
@@ -295,18 +403,16 @@ public class MainActivity extends AppCompatActivity {
                } else if (tab.getPosition() == 1) {
                    //viewPager.setCurrentItem(tab.getPosition());
                    //adapter.refreshFragment(tab.getPosition());
-                    Resources res = getResources();
-                    String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
-                    mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
-                    mRecyclerView.setAdapter(mAdapter);
+                   updateUIwithWarnings(MainActivity.this);
+
 
                } else if (tab.getPosition() == 2) {
                    //viewPager.setCurrentItem(tab.getPosition());
                    //adapter.refreshFragment(tab.getPosition());
-                   Resources res = getResources();
-                    String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
-                    mAdapter = new ItemViewAdapter(new ArrayList<>(Arrays.asList(mockPlanetsData)));
-                    mRecyclerView.setAdapter(mAdapter);
+
+                    //String[] mockPlanetsData = res.getStringArray(R.array.mock_data_for_recycler_view);
+
+                   updateUIwithFavorites(MainActivity.this);
                }
 
            }
@@ -351,7 +457,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent;
+        Intent intent = null;
         switch (item.getItemId()) {
             case R.id.logout:
                 LoginManager.getInstance().logOut();
@@ -365,6 +471,7 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.add_alarm:
                 intent = new Intent(MainActivity.this, AddAlarmActivity.class);
+                intent.putExtra("email", currentUserEmail );
                 MainActivity.this.startActivity(intent);
                 return true;
 
