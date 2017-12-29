@@ -9,6 +9,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -154,6 +155,22 @@ public class RouteActivity extends AppCompatActivity {
                 intent = new Intent(RouteActivity.this, AddAlarmActivity.class);
                 RouteActivity.this.startActivity(intent);
                 return true;
+
+            case R.id.about:
+                View messageView = getLayoutInflater().inflate(R.layout.about, null, false);
+
+                // When linking text, force to always use default color. This works
+                // around a pressed color state bug.
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setIcon(R.mipmap.ic_launcher_round);
+                builder.setTitle(R.string.app_name);
+                builder.setView(messageView);
+                builder.create();
+                builder.show();
+
+                return true;
+
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.

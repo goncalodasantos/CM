@@ -242,7 +242,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
         app:layout_constraintVertical_bias="0.8"
-        android:onClick="goBack"/>
+        android:onClick="goBackOrDelete"/>
 
     <Button
         android:id="@+id/button3"
