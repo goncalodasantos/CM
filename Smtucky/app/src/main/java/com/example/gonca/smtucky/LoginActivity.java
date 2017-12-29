@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 
 
 import com.facebook.AccessToken;
@@ -64,6 +65,50 @@ public class LoginActivity extends AppCompatActivity {
 
         yourButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
+
+                EditText mEdit = (EditText) findViewById(R.id.username);
+
+                String emailInText=mEdit.getText().toString();
+
+
+                UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
+
+
+
+                List<User> listOfUsers = user_db.UserDAO().getUsers();
+
+
+                int successInFindingUserInBD=0;
+                for (int i=0;i<listOfUsers.size();i++){
+                    Log.v("stuff-users in bd", listOfUsers.get(i).getMail());
+                    if(listOfUsers.get(i).getMail().equals(emailInText)){
+                        successInFindingUserInBD=1;
+                    }
+                }
+                if(successInFindingUserInBD==1){
+
+                    Log.v("stuff:","Going to main activity, email in database");
+
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    intent.putExtra("email",emailInText);
+                    LoginActivity.this.startActivity(intent);
+                }
+                else{
+
+
+                    Log.v("stuff-login","no email in Database");
+
+                    User newUser=new User();
+                    newUser.setMail(emailInText);
+                    user_db.UserDAO().insert(newUser);
+
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    intent.putExtra("email",emailInText);
+                    LoginActivity.this.startActivity(intent);
+
+                }
+
+
                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
             }
         });
