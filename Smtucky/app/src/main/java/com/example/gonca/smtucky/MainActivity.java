@@ -139,7 +139,6 @@ public class MainActivity extends AppCompatActivity {
         current_viewmodel = ViewModelProviders.of(this).get(CurrentDataModel.class);
         current_viewmodel.setUsers((ArrayList<User>) listOfUsers);
         currentUserEmail=getIntent().getStringExtra("email");
-        Toast.makeText(this, "email"+currentUserEmail, Toast.LENGTH_SHORT).show();
 
         for (int j=0;j<current_viewmodel.getUsers().size();j++){
             if(current_viewmodel.getUsers().get(j).getMail().equals(currentUserEmail)){
@@ -318,7 +317,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         currentUserEmail=getIntent().getStringExtra("email");
-        Toast.makeText(this, "email"+currentUserEmail, Toast.LENGTH_SHORT).show();
 
 
 
@@ -409,7 +407,6 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                Toast.makeText(MainActivity.this, "WE CHANGED TO: " + tab.getPosition(), Toast.LENGTH_SHORT).show();
 
                 if (tab.getPosition() == 0) {
                     viewPager.setCurrentItem(tab.getPosition());
@@ -473,7 +470,6 @@ public class MainActivity extends AppCompatActivity {
         current_viewmodel.setUsers((ArrayList<User>) listOfUsers);
 
         currentUserEmail=getIntent().getStringExtra("email");
-        Toast.makeText(this, "email"+currentUserEmail, Toast.LENGTH_SHORT).show();
 
         for (int j=0;j<current_viewmodel.getUsers().size();j++){
             if(current_viewmodel.getUsers().get(j).getMail().equals(currentUserEmail)){

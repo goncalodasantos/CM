@@ -2,16 +2,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/logout"
-        android:title="@string/logout"
-        android:icon="@drawable/ic_logout"
-        app:showAsAction="ifRoom"/>
-
     <item android:id="@+id/add_alarm"
         android:title="@string/add_alarm"
         android:icon="@drawable/ic_alarm"
         app:showAsAction="ifRoom"/>
 
+    <item
+        android:id="@+id/logout"
+        android:icon="@drawable/ic_logout"
+        android:title="@string/logout" />
     <item android:id="@+id/about"
         android:title="@string/action_about"
         app:showAsAction="never"/>
