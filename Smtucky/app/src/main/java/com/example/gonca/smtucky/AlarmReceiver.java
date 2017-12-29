@@ -51,12 +51,14 @@ public class AlarmReceiver extends BroadcastReceiver {
                             @Override
                             public void onSuccess(Location location) {
                                 // Got last known location. In some rare situations this can be null.
-
-                                if (location != null && compareLocation(a, location, w.getLat(), w.getLon())) {
-                                    // Logic to handle location object
+                                if(w.getLat() != 0 && w.getLon() != 0) {
+                                    if (location != null && compareLocation(a, location, w.getLat(), w.getLon())) {
+                                        // Logic to handle location object
+                                        sendNotification(a, b);
+                                    }
+                                } else {
                                     sendNotification(a, b);
                                 }
-
                             }
                         });
 

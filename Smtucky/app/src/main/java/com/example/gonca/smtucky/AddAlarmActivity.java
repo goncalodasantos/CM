@@ -66,13 +66,12 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
     private final int MY_PERMISSIONS_REQUEST_READ_LOCATION = 1;
     final static int RQS_1 = 1;
     private Routes routes = null;
-    private String currentUserEmail;
-    CurrentDataModel current_viewmodel = null;
+
     public static final String PREFS_NAME = "MyPrefs";
 
     private Boolean isEditable = false;
     private Warning thisOne;
-
+    private Boolean isCreating = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,7 +106,7 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
         String name = ((TextInputLayout)findViewById(R.id.textInputLayout2)).getEditText().getText().toString();
         String route = ((Spinner) findViewById(R.id.spinner)).getSelectedItem().toString();
 */
-
+        isCreating = false;
         String time = "";
         if(alarm.getHour() > 12) {
             if(alarm.getHour() - 12 < 10) {
@@ -133,6 +132,13 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
 
         ((TextInputLayout)findViewById(R.id.textInputLayout2)).getEditText().setText(alarm.getName());
         ((Spinner) findViewById(R.id.spinner)).setSelection(alarm.getRoute());
+
+        if(alarm.getLon() != 0 && alarm.getLat() != 0) {
+            location = new Location("");
+            location.setLongitude(alarm.getLon());
+            location.setLatitude(alarm.getLat());
+            findViewById(R.id.textView).setVisibility(View.INVISIBLE);
+        }
 
         ((CheckBox) findViewById(R.id.checkBox5)).setChecked(alarm.getMonday() == 1);
         ((CheckBox) findViewById(R.id.checkBox3)).setChecked(alarm.getTuesday() == 1);
@@ -194,6 +200,7 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
                         public void onSuccess(Location location) {
                             // Got last known location. In some rare situations this can be null.
                             if (location != null) {
+                                findViewById(R.id.textView).setVisibility(View.INVISIBLE);
                                 // Logic to handle location object
                                 AddAlarmActivity.this.location = location;
                                 SupportMapFragment mapFragment =
@@ -243,9 +250,8 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
 
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
-
-                    setupMap();
-                    findViewById(R.id.textView).setVisibility(View.INVISIBLE);
+                    if(isCreating)
+                        setupMap();
 
                 } else {
                     // permission denied, boo! Disable the
@@ -343,8 +349,10 @@ public class AddAlarmActivity extends AppCompatActivity implements ISelectedData
 
                     toAdd.setMinute(cal.get(Calendar.MINUTE));
 
-                    toAdd.setLat(location.getLatitude());
-                    toAdd.setLon(location.getLongitude());
+                    if (location != null) {
+                        toAdd.setLat(location.getLatitude());
+                        toAdd.setLon(location.getLongitude());
+                    }
 
                     saveToDb(toAdd);
                     setAlarm(toAdd, cal);
