@@ -3,19 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/favorite_route"
-        android:icon="@drawable/ic_add_black"
+        android:icon="@drawable/ic_is_not_favorite"
         android:title="Add to Favorites"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/remove_favorite_route"
-        android:icon="@drawable/ic_delete_black"
+        android:icon="@drawable/ic_is_favorite"
         android:title="Remove from Favorites"
         app:showAsAction="always" />
 
 
-
-    <item android:id="@+id/action_settings"
+    <item android:id="@+id/about"
         android:title="@string/action_about"
         app:showAsAction="never"/>
 
