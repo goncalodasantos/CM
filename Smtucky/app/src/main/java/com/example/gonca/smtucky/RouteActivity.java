@@ -55,7 +55,6 @@ public class RouteActivity extends AppCompatActivity {
         routeFrom = (Route) getIntent().getExtras().getSerializable("routeFrom");
         routeTo = (Route) getIntent().getExtras().getSerializable("routeTo");
 
-        Log.v("stuff-debugging",routeFrom.toString());
 
         ((TextView) findViewById(R.id.textView7)).setText(routeFrom.getRoute_name());
         ((TextView) findViewById(R.id.textView9)).setText(routeFrom.getFrom());
@@ -66,8 +65,6 @@ public class RouteActivity extends AppCompatActivity {
         List<User> listOfUsers = user_db.UserDAO().getUsers();
 
         currentUserEmail=getIntent().getStringExtra("email");
-        Toast.makeText(this, "email"+currentUserEmail, Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, "SIZE: "+listOfUsers.size(), Toast.LENGTH_SHORT).show();
         for (int j=0;j<listOfUsers.size();j++){
             if(listOfUsers.get(j).getMail().equals(currentUserEmail)){
                 u = listOfUsers.get(j);
@@ -180,36 +177,26 @@ public class RouteActivity extends AppCompatActivity {
             case R.id.favorite_route:
                 if(u!=null) {
                     ArrayList<String> favorites = u.getFavorites();
-                    Toast.makeText(this, "SIze Favoritos inicial "+favorites.size(), Toast.LENGTH_SHORT).show();
-                    Toast.makeText(this, "ID FAVORITO "+routeFrom.getId(), Toast.LENGTH_SHORT).show();
                     favorites.add("" + routeFrom.getId());
-                    Toast.makeText(this, "SIze Favoritos depois de adicionar "+favorites.size(), Toast.LENGTH_SHORT).show();
                     u.setFavorites(favorites);
 
                     UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
-                    Toast.makeText(this, "Users "+user_db.UserDAO().getUsers().size(), Toast.LENGTH_SHORT).show();
-
                     user_db.UserDAO().update(u);
+                    Toast.makeText(this, "Autocarro adicionado aos favoritos!", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(this, "Autocarro não adicionado!", Toast.LENGTH_SHORT).show();
                 }
-                //intent = new Intent(RouteActivity.this, AddAlarmActivity.class);
-                //RouteActivity.this.startActivity(intent);
+
                 return true;
 
             case R.id.remove_favorite_route:
                 if(u!=null) {
                     ArrayList<String> favorites = u.getFavorites();
-                    String index = ""+routeFrom.getId();
-                    for(int i=0;i<favorites.size();i++){
-                        if(favorites.get(i).equals(index)){
-                            favorites.remove(i);
-                        }
-                    }
+                    favorites.remove(routeFrom.getId());
                     u.setFavorites(favorites);
-
                     UserDB user_db = Room.databaseBuilder(getApplicationContext(), UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
-                    Toast.makeText(this, "Users "+user_db.UserDAO().getUsers().size(), Toast.LENGTH_SHORT).show();
-
                     user_db.UserDAO().update(u);
+                    Toast.makeText(this, "Autocarro removido dos favoritos!", Toast.LENGTH_SHORT).show();
                 }
                 //intent = new Intent(RouteActivity.this, AddAlarmActivity.class);
                 //RouteActivity.this.startActivity(intent);

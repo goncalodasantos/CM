@@ -126,6 +126,35 @@ public class MainActivity extends AppCompatActivity {
         void onClick(View view, int position);
     }
 
+    protected void updateUIwithWarnings(Context context) {
+
+        user_db = Room.databaseBuilder(getApplicationContext(),UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
+        List<User> listOfUsers = user_db.UserDAO().getUsers();
+        current_viewmodel = ViewModelProviders.of(this).get(CurrentDataModel.class);
+        current_viewmodel.setUsers((ArrayList<User>) listOfUsers);
+        currentUserEmail=getIntent().getStringExtra("email");
+        Toast.makeText(this, "email"+currentUserEmail, Toast.LENGTH_SHORT).show();
+
+        for (int j=0;j<current_viewmodel.getUsers().size();j++){
+            if(current_viewmodel.getUsers().get(j).getMail().equals(currentUserEmail)){
+                current_viewmodel.setUser(current_viewmodel.getUsers().get(j));
+                favorites = current_viewmodel.getUser().getFavorites();
+            }
+
+        }
+
+
+        List<Warning> listOfWarnings = user_db.WarningDao().getWarnings();
+        current_viewmodel.setWarnings((ArrayList<Warning>) listOfWarnings);
+
+        mAdapter = new ItemViewAdapter(new ArrayList<>(listOfWarnings));
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.removeOnItemTouchListener(listTouchListener);
+
+        mRecyclerView.addOnItemTouchListener(listTouchListener);
+
+    }
+
     protected void updateUIwithFavorites(Context context) {
 
         user_db = Room.databaseBuilder(getApplicationContext(),UserDB.class, "userxgxssxnnnnn").allowMainThreadQueries().build();
@@ -133,12 +162,10 @@ public class MainActivity extends AppCompatActivity {
         current_viewmodel = ViewModelProviders.of(this).get(CurrentDataModel.class);
         current_viewmodel.setUsers((ArrayList<User>) listOfUsers);
         currentUserEmail=getIntent().getStringExtra("email");
-        Toast.makeText(this, "email ACTUALIZAR "+currentUserEmail, Toast.LENGTH_SHORT).show();
 
         for (int j=0;j<current_viewmodel.getUsers().size();j++){
             if(current_viewmodel.getUsers().get(j).getMail().equals(currentUserEmail)){
                 current_viewmodel.setUser(current_viewmodel.getUsers().get(j));
-                Toast.makeText(context, "SIZE DOS FAVORITOS: "+current_viewmodel.getUser().getFavorites().size(), Toast.LENGTH_SHORT).show();
                 favorites = current_viewmodel.getUser().getFavorites();
             }
 
@@ -163,7 +190,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
-        Toast.makeText(context, "TESTE", Toast.LENGTH_SHORT).show();
         mAdapter = new ItemViewAdapter(new ArrayList<>(favoritess));
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.removeOnItemTouchListener(listTouchListener);
@@ -220,7 +246,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
-        Toast.makeText(context, "TESTE", Toast.LENGTH_SHORT).show();
         mAdapter = new ItemViewAdapter(new ArrayList<>(listOfRoutes));
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.removeOnItemTouchListener(listTouchListener);
@@ -378,7 +403,8 @@ public class MainActivity extends AppCompatActivity {
                } else if (tab.getPosition() == 1) {
                    //viewPager.setCurrentItem(tab.getPosition());
                    //adapter.refreshFragment(tab.getPosition());
-                  
+                   updateUIwithWarnings(MainActivity.this);
+
 
                } else if (tab.getPosition() == 2) {
                    //viewPager.setCurrentItem(tab.getPosition());
