@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        List<Warning> listOfWarnings = user_db.WarningDao().getWarningsByUser(getUserId()));
+        List<Warning> listOfWarnings = user_db.WarningDao().getWarningsByUser(getUserId());
         current_viewmodel.setWarnings((ArrayList<Warning>) listOfWarnings);
 
         mAdapter = new ItemViewAdapter(new ArrayList<>(listOfWarnings));
